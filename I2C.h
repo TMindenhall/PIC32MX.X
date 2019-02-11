@@ -13,6 +13,7 @@
 #include <xc.h>
 
 #define BNO_DEVICE          0x50
+#define BNO_READ            0x51
 #define OPR_MODE            0x3D
 #define PWR_MODE            0x3E
 #define TEMP_SOURCE         0x40
@@ -84,6 +85,7 @@
 #define ACC_X_OFF_MSB       0x56
 #define ACC_X_OFF_LSB       0x55
 
+int flag;
 
 void I2C_1_Init(void);
 void I2C_2_Init(void);
@@ -91,6 +93,8 @@ char I2C_1_Read_Byte(char device_adr, char reg_adr);
 char I2C_2_Read_Byte(char device_adr, char reg_adr);
 void I2C_1_Write_Byte(char device_adr, char reg_adr, char value);
 void I2C_2_Write_Byte(char device_adr, char reg_adr, char value);
+void I2C_1_Check(void);
+int Read_Flag(void);
 
 #endif
 
