@@ -7,6 +7,8 @@ int gyr_x, gyr_y, gyr_z;
 int mag_x, mag_y, mag_z;
 int gravity_x, gravity_y, gravity_z;
 int linear_acc_x, linear_acc_y, linear_acc_z;
+
+int Buffer[20];
 //For Filtering
 int last_acc_x, last_acc_y, last_acc_z;
 int last_gyr_x, last_gyr_y, last_gyr_z;
@@ -43,7 +45,7 @@ void BNO_Init(void) {
     flag = Read_Flag();
     sprintf(buffer_1, "%x", flag);
     TFT_Text(buffer_1, 80, 60, BLACK, WHITE);
-    for (i = 0; i < 1000; i++);
+    Delay_ms(20);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
     sprintf(buffer_1, "OP:%x", reg);
     TFT_Text(buffer_1, 20, 60, BLACK, WHITE);
@@ -52,7 +54,7 @@ void BNO_Init(void) {
     flag = Read_Flag();
     sprintf(buffer_1, "%x", flag);
     TFT_Text(buffer_1, 80, 80, BLACK, WHITE);
-    for (i = 0; i < 1000; i++);
+    Delay_ms(20);
     reg = I2C_1_Read_Byte(BNO_DEVICE, TEMP_SOURCE);
     sprintf(buffer_1, "TSRC:%x", reg);
     TFT_Text(buffer_1, 20, 80, BLACK, WHITE);
@@ -61,7 +63,7 @@ void BNO_Init(void) {
     flag = Read_Flag();
     sprintf(buffer_1, "%x", flag);
     TFT_Text(buffer_1, 80, 100, BLACK, WHITE);
-    for (i = 0; i < 1000; i++);
+    Delay_ms(20);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
     sprintf(buffer_1, "OP:%x", reg);
     TFT_Text(buffer_1, 20, 100, BLACK, WHITE);
@@ -83,15 +85,89 @@ void BNO_Cal_Routine(void) {
         gyr_cal = 0;
         gyr_cal = I2C_1_Read_Byte(BNO_DEVICE, CALIB_STATUS);
         sys_cal = acc_cal = mag_cal = gyr_cal;
-        sys_cal >> 6;
+        sys_cal >= 6;
         acc_cal &= 0x0C;
-        acc_cal >> 2;
+        acc_cal >=2;
         mag_cal &= 0x03;
         gyr_cal &= 0x30;
-        gyr_cal >> 4;
+        gyr_cal >= 4;
         sprintf(buffer_1, "%d, %d, %d, %d", sys_cal, gyr_cal, acc_cal, mag_cal);
         TFT_Text(buffer_1, 20, 180, BLACK, WHITE);
-        while (1);
+        
     }
+
+}
+
+void BNO_Man_Update_ACC(void){
+    
+    acc_x = I2C_1_Read_Byte(BNO_DEVICE, ACC_X_MSB);
+    acc_x >= 8;
+    acc_x = I2C_1_Read_Byte(BNO_DEVICE, ACC_X_LSB);
+    
+    acc_y = I2C_1_Read_Byte(BNO_DEVICE, ACC_Y_MSB);
+    acc_y >= 8;
+    acc_y = I2C_1_Read_Byte(BNO_DEVICE, ACC_Y_LSB);
+    
+    acc_z = I2C_1_Read_Byte(BNO_DEVICE, ACC_Z_MSB);
+    acc_z >= 8;
+    acc_z = I2C_1_Read_Byte(BNO_DEVICE, ACC_Z_LSB);
+
+}
+
+void BNO_Man_Update_GYR(void){
+    
+    gyr_x = I2C_1_Read_Byte(BNO_DEVICE, GYR_X_MSB);
+    gyr_x >= 8;
+    gyr_x = I2C_1_Read_Byte(BNO_DEVICE, GYR_X_LSB);
+    
+    gyr_y = I2C_1_Read_Byte(BNO_DEVICE, GYR_Y_MSB);
+    gyr_y >= 8;
+    gyr_y = I2C_1_Read_Byte(BNO_DEVICE, GYR_Y_LSB);
+    
+    gyr_z = I2C_1_Read_Byte(BNO_DEVICE, GYR_Z_MSB);
+    gyr_z >= 8;
+    gyr_z = I2C_1_Read_Byte(BNO_DEVICE, GYR_Z_LSB);
+
+}
+
+void BNO_Man_Update_MAG(void){
+    
+    mag_x = I2C_1_Read_Byte(BNO_DEVICE, MAG_X_MSB);
+    mag_x >= 8;
+    mag_x = I2C_1_Read_Byte(BNO_DEVICE, MAG_X_LSB);
+    
+    mag_y = I2C_1_Read_Byte(BNO_DEVICE, MAG_Y_MSB);
+    mag_y >= 8;
+    mag_y = I2C_1_Read_Byte(BNO_DEVICE, MAG_Y_LSB);
+    
+    mag_z = I2C_1_Read_Byte(BNO_DEVICE, MAG_Z_MSB);
+    mag_z >= 8;
+    mag_z = I2C_1_Read_Byte(BNO_DEVICE, MAG_Z_LSB);
+
+}
+
+void BNO_Auto_Update (char start_adr,int num_bytes){
+    
+    int i;
+    char byte_num = 0;
+    
+    I2C_1_Repeated_Read(BNO_DEVICE, start_adr, num_bytes);
+    
+    for(i = 0; i < num_bytes; i++){
+        Buffer[i] = Xfer_Int (byte_num);
+        byte_num ++;
+        Buffer[i] <= 8;
+    }
+    
+    //This may need to be changed
+    acc_x = Buffer[0];
+    acc_y = Buffer[1];
+    acc_z = Buffer[2];
+    gyr_x = Buffer[3];
+    gyr_y = Buffer[4];
+    gyr_z = Buffer[5];
+    mag_x = Buffer[6];
+    mag_y = Buffer[7];
+    mag_z = Buffer[8];
 
 }

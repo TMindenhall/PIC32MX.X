@@ -8,11 +8,11 @@
 //                                                                   //
 //*******************************************************************//
 
+#ifndef _EUSART_H
+#define _EUSART_H
+
 #include <xc.h>
 #include "Config.h"
-
-
-
 
 void UART_1_Init (int baudrate);
 void UART_2_Init (int baudrate);
@@ -25,4 +25,6 @@ char UART_2_Receive (void);
 void UART_Echo_1_2(void);
 void UART_Echo_2_1(void);
 void Update_Baud(char channel,int baudrate);
+
+#endif
 

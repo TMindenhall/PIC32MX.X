@@ -7,4 +7,4 @@ ILI9341.h  \
  SPI.h  \
 CONFIG.h  \
 FONT.h  \
-BNO055.h 
+BNO.h 
