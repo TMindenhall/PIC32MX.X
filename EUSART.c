@@ -14,29 +14,22 @@ void UART_1_Init (int baudrate){
     
     int brg = 0;
     
-    TRISBbits.TRISB4 = 0; //TX1
-    TRISAbits.TRISA4 = 1; //RX1
-    
-    U1RXR = 2;
-    RPB4R = 1;
-    
     brg =(int) ((_XTAL_FREQ / 8)/9600) - 1;
     
     U1BRG = 519;
     
-    U1MODEbits.ON = 1;
-    U1MODEbits.IREN = 0;
-    U1MODEbits.UEN = 0;
-    U1MODEbits.RXINV = 0;
-    U1MODEbits.BRGH = 1;
-    U1MODEbits.PDSEL = 0;
-    U1MODEbits.STSEL = 0;
+    U1MODEbits.ON = 1;          //UART On
+    U1STAbits.URXEN = 1;        //Enable Rx
+    U1STAbits.UTXEN = 1;        //Enable Tx
+    U1MODEbits.UEN = 0;         //Rx/Tx enabled and used
+    U1MODEbits.BRGH = 1;        //High Speed Baud
+    U1MODEbits.PDSEL = 0;       //8bit mode, no parity
+    U1MODEbits.STSEL = 0;       //1 Stop bit
     
-    U1STAbits.UTXISEL = 1;
-    U1STAbits.UTXINV = 0;
-    U1STAbits.URXEN = 1;
-    U1STAbits.UTXEN = 1;
-    U1STAbits.URXISEL = 2;
+    U1STAbits.UTXISEL = 1;      //Tx Interrupt generates on all chars xfer'd
+    U1STAbits.UTXINV = 0;       //Tx Idles High
+
+    U1STAbits.URXISEL = 2;      //Rx Interrupt generates on all chars recv'd
     
     
 }

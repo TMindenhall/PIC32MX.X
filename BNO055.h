@@ -16,5 +16,8 @@ void BNO_Man_Update_ACC(void);
 void BNO_Man_Update_GYR(void);
 void BNO_Man_Update_MAG(void);
 void BNO_Auto_Update (char start_adr,int num_bytes);
+void UpdateNewHeading(void);
+void Correct_Vectors (void);
+long int Compute_Position(void);
 
 #endif

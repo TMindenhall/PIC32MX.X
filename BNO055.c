@@ -1,23 +1,31 @@
 
 #include "BNO055.h"
-
+#include <stdio.h>
+#include <math.h>
 //Globals
 int acc_x, acc_y, acc_z;
 int gyr_x, gyr_y, gyr_z;
 int mag_x, mag_y, mag_z;
 int gravity_x, gravity_y, gravity_z;
 int linear_acc_x, linear_acc_y, linear_acc_z;
-
-int Buffer[20];
+int correction_vector_x, correction_vector_y, correction_vector_z;
 //For Filtering
 int last_acc_x, last_acc_y, last_acc_z;
 int last_gyr_x, last_gyr_y, last_gyr_z;
 int last_mag_x, last_mag_y, last_mag_z;
 int last_gravity_x, last_gravity_y, last_gravity_z;
 int last_linear_acc_x, last_linear_acc_y, last_linear_acc_z;
+int mag_unit_x, mag_unit_y, mag_unit_z;
+int distance_x,distance_y,distance_z;
 
+long int total_distance;
+long int correction_scalar;
 int i;
+float delta_t;
+//Buffers
+int Buffer[20];
 char buffer_1[20];
+int heading_Buffer[3];
 
 void Null_IMU_Values(void) {
     //Null Variables
@@ -171,3 +179,54 @@ void BNO_Auto_Update (char start_adr,int num_bytes){
     mag_z = Buffer[8];
 
 }
+
+void UpdateNewHeading(void){
+    
+    //Fix this when we get repeated read working
+    heading_Buffer[0] = I2C_1_Read_Byte(BNO_DEVICE,MAG_X_MSB);
+    heading_Buffer[0] <= 8;
+    heading_Buffer[0] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_X_LSB);
+    
+    heading_Buffer[1] = I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_MSB);
+    heading_Buffer[1] <= 8;
+    heading_Buffer[1] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_LSB);
+    
+    heading_Buffer[2] = I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_MSB);
+    heading_Buffer[2] <= 8;
+    heading_Buffer[2] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_LSB);
+    
+    //Get a new magnitude to compute a unit vector
+    int magnitude = (sqrt(pow(heading_Buffer[0],2) + pow(heading_Buffer[1], 2)  + pow(heading_Buffer[2], 2)));
+    
+    //Compute Unit Vector
+    mag_unit_x = (heading_Buffer[0] / magnitude);
+    mag_unit_y = (heading_Buffer[1] / magnitude);
+    mag_unit_z = (heading_Buffer[2] / magnitude);
+}
+
+/*
+ We need to take the Linear Acc and project that to a vector that is normal to 
+ * the gravity vector. We also want only the Linear Acc in the direction of the
+ * heading. 
+ */
+
+void Correct_Vectors (void){
+
+    //Correct Lin Acc for Heading
+    correction_vector_x = (linear_acc_x * mag_unit_x);
+    correction_vector_y = (linear_acc_y * mag_unit_y);
+    correction_vector_z = (linear_acc_z * mag_unit_z);
+    correction_scalar = correction_vector_x + correction_vector_y + correction_vector_z;
+}    
+    
+long int Compute_Position(void){
+    
+    distance_x = (correction_vector_x *.5 ) * pow(delta_t, 2);
+    distance_y = (correction_vector_y *.5 ) * pow(delta_t, 2);
+    distance_z = (correction_vector_z *.5 ) * pow(delta_t, 2);
+    
+    total_distance = sqrt((distance_x)^2 + (distance_y)^2 + (distance_z)^2 );
+    
+    return total_distance;
+}
+

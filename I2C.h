@@ -87,6 +87,7 @@
 
 int flag;
 int Recieve_Buffer [20];
+
 void I2C_1_Init(void);
 void I2C_2_Init(void);
 char I2C_1_Read_Byte(char device_adr, char reg_adr);
