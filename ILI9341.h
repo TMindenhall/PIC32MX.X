@@ -79,13 +79,13 @@
 #define TFT_W 240
 #define TFT_H 320
 
-typedef char                     Schar;
-typedef unsigned char            Uchar;
-typedef const char               CSchar;
-typedef const unsigned char      CUchar;
-typedef int                      Sint; 
-typedef unsigned int             Uint;
-typedef const unsigned int       CUint;
+typedef char Schar;
+typedef unsigned char Uchar;
+typedef const char CSchar;
+typedef const unsigned char CUchar;
+typedef int Sint;
+typedef unsigned int Uint;
+typedef const unsigned int CUint;
 
 //==============================================================================
 // Function Prototypes.

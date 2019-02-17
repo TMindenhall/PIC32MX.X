@@ -1,32 +1,9 @@
-
+//Includes
 #include "BNO055.h"
 #include <stdio.h>
 #include <math.h>
-//Globals
-int acc_x, acc_y, acc_z;
-int gyr_x, gyr_y, gyr_z;
-int mag_x, mag_y, mag_z;
-int gravity_x, gravity_y, gravity_z;
-int linear_acc_x, linear_acc_y, linear_acc_z;
-int correction_vector_x, correction_vector_y, correction_vector_z;
-//For Filtering
-int last_acc_x, last_acc_y, last_acc_z;
-int last_gyr_x, last_gyr_y, last_gyr_z;
-int last_mag_x, last_mag_y, last_mag_z;
-int last_gravity_x, last_gravity_y, last_gravity_z;
-int last_linear_acc_x, last_linear_acc_y, last_linear_acc_z;
-int mag_unit_x, mag_unit_y, mag_unit_z;
-int distance_x,distance_y,distance_z;
 
-long int total_distance;
-long int correction_scalar;
-int i;
-float delta_t;
-//Buffers
-int Buffer[20];
-char buffer_1[20];
-int heading_Buffer[3];
-
+/******************************************************************************/
 void Null_IMU_Values(void) {
     //Null Variables
     acc_x = acc_y = acc_z = 0;
@@ -42,36 +19,27 @@ void Null_IMU_Values(void) {
 
 
 }
-
+/******************************************************************************/
 void BNO_Init(void) {
-    int flag;
     Uint reg;
     sprintf(buffer_1, "Configuring IMU...");
     TFT_Text(buffer_1, 20, 40, BLACK, WHITE);
 
     I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x00);
-    flag = Read_Flag();
-    sprintf(buffer_1, "%x", flag);
-    TFT_Text(buffer_1, 80, 60, BLACK, WHITE);
     Delay_ms(20);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
     sprintf(buffer_1, "OP:%x", reg);
     TFT_Text(buffer_1, 20, 60, BLACK, WHITE);
 
     I2C_1_Write_Byte(BNO_DEVICE, TEMP_SOURCE, 0x01);
-    flag = Read_Flag();
-    sprintf(buffer_1, "%x", flag);
-    TFT_Text(buffer_1, 80, 80, BLACK, WHITE);
-    Delay_ms(20);
+    Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, TEMP_SOURCE);
     sprintf(buffer_1, "TSRC:%x", reg);
     TFT_Text(buffer_1, 20, 80, BLACK, WHITE);
 
     I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x0C);
-    flag = Read_Flag();
-    sprintf(buffer_1, "%x", flag);
     TFT_Text(buffer_1, 80, 100, BLACK, WHITE);
-    Delay_ms(20);
+    Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
     sprintf(buffer_1, "OP:%x", reg);
     TFT_Text(buffer_1, 20, 100, BLACK, WHITE);
@@ -81,7 +49,7 @@ void BNO_Init(void) {
 
 
 }
-
+/******************************************************************************/
 void BNO_Cal_Routine(void) {
     unsigned char sys_cal, acc_cal, mag_cal, gyr_cal;
     sprintf(buffer_1, "Calibrating...");
@@ -103,9 +71,10 @@ void BNO_Cal_Routine(void) {
         TFT_Text(buffer_1, 20, 180, BLACK, WHITE);
         
     }
-
+    sprintf(buffer_1, "IMU Cal'd...");
+    TFT_Text(buffer_1, 20, 200, BLACK, WHITE);
 }
-
+/******************************************************************************/
 void BNO_Man_Update_ACC(void){
     
     acc_x = I2C_1_Read_Byte(BNO_DEVICE, ACC_X_MSB);
@@ -121,7 +90,7 @@ void BNO_Man_Update_ACC(void){
     acc_z = I2C_1_Read_Byte(BNO_DEVICE, ACC_Z_LSB);
 
 }
-
+/*****************************************************************************/
 void BNO_Man_Update_GYR(void){
     
     gyr_x = I2C_1_Read_Byte(BNO_DEVICE, GYR_X_MSB);
@@ -137,7 +106,7 @@ void BNO_Man_Update_GYR(void){
     gyr_z = I2C_1_Read_Byte(BNO_DEVICE, GYR_Z_LSB);
 
 }
-
+/******************************************************************************/
 void BNO_Man_Update_MAG(void){
     
     mag_x = I2C_1_Read_Byte(BNO_DEVICE, MAG_X_MSB);
@@ -153,7 +122,15 @@ void BNO_Man_Update_MAG(void){
     mag_z = I2C_1_Read_Byte(BNO_DEVICE, MAG_Z_LSB);
 
 }
+/******************************************************************************/
+void BNO_Full_Man_Update(void){
 
+    BNO_Man_Update_ACC();
+    BNO_Man_Update_GYR();
+    BNO_Man_Update_MAG();
+    
+}
+/******************************************************************************/
 void BNO_Auto_Update (char start_adr,int num_bytes){
     
     int i;
@@ -179,7 +156,26 @@ void BNO_Auto_Update (char start_adr,int num_bytes){
     mag_z = Buffer[8];
 
 }
-
+/******************************************************************************/
+void Update_Text_Display(void){
+    
+    TFT_FillScreen(BLACK);
+    sprintf(buffer_1, "ACC X Y Z");
+    TFT_Text(buffer_1, 20, 20, WHITE, BLACK);
+    sprintf(buffer_1, "%d %d %d", acc_x, acc_y, acc_z);
+    TFT_Text(buffer_1, 20, 40, WHITE, BLACK);
+    
+    sprintf(buffer_1, "GYR X Y Z");
+    TFT_Text(buffer_1, 20, 80, WHITE, BLACK);
+    sprintf(buffer_1, "%d %d %d", gyr_x, gyr_y, gyr_z);
+    TFT_Text(buffer_1, 20, 100, WHITE, BLACK);
+    
+    sprintf(buffer_1, "MAG X Y Z");
+    TFT_Text(buffer_1, 20, 120, WHITE, BLACK);
+    sprintf(buffer_1, "%d %d %d", mag_x, mag_y, mag_z);
+    TFT_Text(buffer_1, 20, 140, WHITE, BLACK);
+}
+/******************************************************************************/
 void UpdateNewHeading(void){
     
     //Fix this when we get repeated read working
@@ -203,7 +199,7 @@ void UpdateNewHeading(void){
     mag_unit_y = (heading_Buffer[1] / magnitude);
     mag_unit_z = (heading_Buffer[2] / magnitude);
 }
-
+/******************************************************************************/
 /*
  We need to take the Linear Acc and project that to a vector that is normal to 
  * the gravity vector. We also want only the Linear Acc in the direction of the
@@ -218,7 +214,7 @@ void Correct_Vectors (void){
     correction_vector_z = (linear_acc_z * mag_unit_z);
     correction_scalar = correction_vector_x + correction_vector_y + correction_vector_z;
 }    
-    
+/******************************************************************************/    
 long int Compute_Position(void){
     
     distance_x = (correction_vector_x *.5 ) * pow(delta_t, 2);
@@ -229,4 +225,7 @@ long int Compute_Position(void){
     
     return total_distance;
 }
+/*****************************************************************************/
+/*****************************END OF FILE*************************************/
+/*****************************************************************************/
 

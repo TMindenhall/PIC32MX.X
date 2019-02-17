@@ -11,6 +11,7 @@
       <itemPath>EUSART.h</itemPath>
       <itemPath>Delay.h</itemPath>
       <itemPath>BNO055.h</itemPath>
+      <itemPath>MT3339.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,6 +29,7 @@
       <itemPath>EUSART.c</itemPath>
       <itemPath>Delay.c</itemPath>
       <itemPath>BNO055.c</itemPath>
+      <itemPath>MT3339.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

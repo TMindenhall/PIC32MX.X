@@ -15,9 +15,8 @@
 
 //RB9 = SDA1
 //RB8 = SCL1
-
+/*****************************************************************************/
 void I2C_1_Init(void){
-//    I2C_1_Check();
     flag = 0;
     //Set Baud Rates
     //I2C1BRG = 0x015;                //400kHz
@@ -35,7 +34,7 @@ void I2C_1_Init(void){
     IFS1bits.I2C1BIF = 0;
     
 }
-
+/*****************************************************************************/
 void I2C_2_Init(void){
     
     //Set Baud Rates
@@ -47,8 +46,7 @@ void I2C_2_Init(void){
     
     
 }
-
-
+/******************************************************************************/
 char I2C_1_Read_Byte(char device_adr, char reg_adr){
     
     char rx;
@@ -79,7 +77,7 @@ char I2C_1_Read_Byte(char device_adr, char reg_adr){
     while (I2C1CONbits.PEN == 1);       //Wait for stop to finish
     return rx;
 }
-
+/******************************************************************************/
 char I2C_2_Read_Byte(char device_adr, char reg_adr){
     
     char rx;
@@ -103,7 +101,7 @@ char I2C_2_Read_Byte(char device_adr, char reg_adr){
     while (I2C2CONbits.PEN == 1);       //Wait for stop to finish
     return rx;
 }
-
+/******************************************************************************/
 void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
     char data;
     
@@ -131,7 +129,7 @@ void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
     I2C1CONbits.PEN = 1;                //Stop condition
     while (I2C1CONbits.PEN == 1);       //Wait for stop to finish
 }
-
+/******************************************************************************/
 void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
     char data;
     
@@ -150,7 +148,7 @@ void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
     I2C2CONbits.PEN = 1;                //Stop condition
     while (I2C2CONbits.PEN == 1);       //Wait for stop to finish
 }
-
+/*****************************************************************************/
 void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
 
     char rx;
@@ -194,12 +192,12 @@ void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
     while (I2C1CONbits.PEN == 1); //Wait for stop to finish
     
 }
-
+/******************************************************************************/
 int Xfer_Int (char adr){
     
     return Recieve_Buffer[adr];
 }
-
+/******************************************************************************/
 int Read_Flag (void){
 
     return flag;
