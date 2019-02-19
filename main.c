@@ -38,6 +38,7 @@ int main(void) {
     InitSystem();
     SPI1_Init();
     UART_1_Init(9600);
+    Send_String_U1("UART 1 Configured\r\n");
     I2C_1_Init();
     TFT_Init();
     TFT_SetDotSize(1);
