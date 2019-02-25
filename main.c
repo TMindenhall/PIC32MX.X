@@ -55,11 +55,13 @@ int main(void) {
     sprintf(buffer_1, "Distance:");
     TFT_Text(buffer_1, 0, 20, BLACK, WHITE);
     while (1) {
+    /**************************************************************************/   
         Update_New_Heading();
         BNO_Auto_Update(LIA_X_LSB,6);
         distance = Compute_Position();
         sprintf(buffer_1,"%l m", distance);
         TFT_Text(buffer_1,20,40,BLACK,WHITE);
+   /***************************************************************************/    
     }
 }
 
