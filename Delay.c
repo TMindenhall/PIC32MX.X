@@ -23,6 +23,15 @@ void Timer_1_Reset(void){   //resets the timer with the value of 63036
     TMR1 = 0xF63C;
 }
 
+int Timer_1_Read(void){
+    return TMR1;
+}
+
+void Null_Timer_1 (void){
+    TMR1 = 0;
+}
+
+
 void Delay_ms(int ms){
     int i;
     for(i = 0; i <= ms;i++){

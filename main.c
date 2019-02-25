@@ -32,6 +32,7 @@ char c;
 
 //NMEA Strings
 int i;
+long int distance;
 int main(void) {
     //Config Functions
     //Inits
@@ -49,12 +50,16 @@ int main(void) {
     BNO_Cal_Routine();
     TFT_FillScreen(BLACK);
     Done_Message();
-    
+    distance = 0;
     c = 0;
-    
+    sprintf(buffer_1, "Distance:");
+    TFT_Text(buffer_1, 0, 20, BLACK, WHITE);
     while (1) {
-       BNO_Full_Man_Update();
-       Update_Text_Display();
+        Update_New_Heading();
+        BNO_Auto_Update(LIA_X_LSB,6);
+        distance = Compute_Position();
+        sprintf(buffer_1,"%l m", distance);
+        TFT_Text(buffer_1,20,40,BLACK,WHITE);
     }
 }
 

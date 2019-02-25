@@ -135,9 +135,10 @@ void BNO_Auto_Update (char start_adr,int num_bytes){
     
     int i;
     char byte_num = 0;
-    
+    Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE, start_adr, num_bytes);
-    
+    delta_t = Compute_Delta_T();
+    delta_t = delta_t / num_bytes;
     for(i = 0; i < num_bytes; i++){
         Buffer[i] = Xfer_Int (byte_num);
         byte_num ++;
@@ -176,7 +177,7 @@ void Update_Text_Display(void){
     TFT_Text(buffer_1, 20, 140, WHITE, BLACK);
 }
 /******************************************************************************/
-void UpdateNewHeading(void){
+void Update_New_Heading(void){
     
     //Fix this when we get repeated read working
     heading_Buffer[0] = I2C_1_Read_Byte(BNO_DEVICE,MAG_X_MSB);
@@ -207,23 +208,41 @@ void UpdateNewHeading(void){
  */
 
 void Correct_Vectors (void){
-
+    //define new basis
+    int mag_basis [3] [3] = {{mag_unit_x, 0, 0},{0, mag_unit_y, 0},{0,0,mag_unit_z}};
+   
+    
     //Correct Lin Acc for Heading
-    correction_vector_x = (linear_acc_x * mag_unit_x);
-    correction_vector_y = (linear_acc_y * mag_unit_y);
-    correction_vector_z = (linear_acc_z * mag_unit_z);
-    correction_scalar = correction_vector_x + correction_vector_y + correction_vector_z;
-}    
+    correction_vector_x = (linear_acc_x * mag_basis[1][1]);
+    correction_vector_y = (linear_acc_y * mag_basis[2][2]);
+    correction_vector_z = (linear_acc_z * mag_basis[3][3]);
+    
+}
+void Start_Delta_T(void){
+    Null_Timer_1();
+    Timer_1_Start();
+}
+int Read_Delta_T(void){
+    Timer_1_Stop();
+    return Timer_1_Read();
+}
+int Compute_Delta_T(void){
+    double factor = (8/20000000L);
+    int delta_t_int = Timer_1_Read();
+    return (factor * delta_t_int);
+}
 /******************************************************************************/    
 long int Compute_Position(void){
-    
+    Correct_Vectors();
     distance_x = (correction_vector_x *.5 ) * pow(delta_t, 2);
     distance_y = (correction_vector_y *.5 ) * pow(delta_t, 2);
     distance_z = (correction_vector_z *.5 ) * pow(delta_t, 2);
     
-    total_distance = sqrt((distance_x)^2 + (distance_y)^2 + (distance_z)^2 );
+    total_distance_r3 = sqrt(pow(distance_x,2) + pow(distance_y,2) + pow(distance_z,2));
+    total_distance_r2 = sqrt(pow(distance_x,2) + pow(distance_y,2));
     
-    return total_distance;
+    //return total_distance_r3;
+    return total_distance_r2;
 }
 /*****************************************************************************/
 /*****************************END OF FILE*************************************/
