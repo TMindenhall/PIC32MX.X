@@ -193,7 +193,7 @@ void Update_New_Heading(void){
     heading_Buffer[2] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_LSB);
     
     //Get a new magnitude to compute a unit vector
-    int magnitude = (sqrt(pow(heading_Buffer[0],2) + pow(heading_Buffer[1], 2)  + pow(heading_Buffer[2], 2)));
+    magnitude = (sqrt(pow(heading_Buffer[0],2) + pow(heading_Buffer[1], 2)  + pow(heading_Buffer[2], 2)));
     
     //Compute Unit Vector
     mag_unit_x = (heading_Buffer[0] / magnitude);
@@ -208,14 +208,13 @@ void Update_New_Heading(void){
  */
 
 void Correct_Vectors (void){
-    //define new basis
-    int mag_basis [3] [3] = {{mag_unit_x, 0, 0},{0, mag_unit_y, 0},{0,0,mag_unit_z}};
-   
-    
     //Correct Lin Acc for Heading
-    correction_vector_x = (linear_acc_x * mag_basis[1][1]);
-    correction_vector_y = (linear_acc_y * mag_basis[2][2]);
-    correction_vector_z = (linear_acc_z * mag_basis[3][3]);
+    correction_vector_x = ((heading_Buffer[0] * linear_acc_x)/magnitude)*mag_unit_x;
+    correction_vector_y = ((heading_Buffer[1] * linear_acc_y)/magnitude)*mag_unit_y;
+    correction_vector_z = ((heading_Buffer[2] * linear_acc_z)/magnitude)*mag_unit_z;
+    
+    projection = correction_vector_x + correction_vector_y + correction_vector_z;
+    
     
 }
 void Start_Delta_T(void){
@@ -234,13 +233,7 @@ int Compute_Delta_T(void){
 /******************************************************************************/    
 long int Compute_Position(void){
     Correct_Vectors();
-    distance_x = (correction_vector_x *.5 ) * pow(delta_t, 2);
-    distance_y = (correction_vector_y *.5 ) * pow(delta_t, 2);
-    distance_z = (correction_vector_z *.5 ) * pow(delta_t, 2);
-    
-    total_distance_r3 = sqrt(pow(distance_x,2) + pow(distance_y,2) + pow(distance_z,2));
-    total_distance_r2 = sqrt(pow(distance_x,2) + pow(distance_y,2));
-    
+    total_distance_r2 = (.5 * projection) * (pow(delta_t,2));
     //return total_distance_r3;
     return total_distance_r2;
 }

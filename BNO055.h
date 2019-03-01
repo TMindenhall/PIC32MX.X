@@ -29,7 +29,9 @@ int last_gravity_x, last_gravity_y, last_gravity_z;
 int last_linear_acc_x, last_linear_acc_y, last_linear_acc_z;
 int mag_unit_x, mag_unit_y, mag_unit_z;
 int last_distance_x,last_distance_y,last_distance_z;
+
 /******************************************************************************/
+long int projection, magnitude;
 long int total_distance_r3,total_distance_r2;
 int i;
 double delta_t;
