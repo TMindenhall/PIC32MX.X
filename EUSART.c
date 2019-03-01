@@ -14,8 +14,9 @@ void UART_1_Init (int baudrate){
     
     int brg = 0;
     brg =(int)((_XTAL_FREQ / 8)/9600) - 1;
-    U1MODEbits.BRGH = 1;        //High Speed Baud
-    U1BRG = 519;
+    U1MODEbits.BRGH = 0;        //High Speed Baud
+    U1BRG = 129;
+    //U1BRG = 519;                //If BRGH 
     U1MODEbits.UEN = 0;         //Rx/Tx enabled and used
     U1MODEbits.WAKE = 1;
     U1MODEbits.PDSEL = 0;       //8bit mode, no parity
@@ -45,8 +46,9 @@ void UART_2_Init (int baudrate){
     
     int brg = 0;
     brg =(int)((_XTAL_FREQ / 8)/9600) - 1;
-    U2MODEbits.BRGH = 1;        //High Speed Baud
-    U2BRG = 519;
+    U2MODEbits.BRGH = 0;        //High Speed Baud
+    U2BRG = 129;
+    //U2BRG = 519;                //If BRGH
     U2MODEbits.UEN = 0;         //Rx/Tx enabled and used
     U2MODEbits.WAKE = 1;
     U2MODEbits.PDSEL = 0;       //8bit mode, no parity
