@@ -1,7 +1,6 @@
 //Includes
 #include "BNO055.h"
-#include <stdio.h>
-#include <math.h>
+
 
 /******************************************************************************/
 void Null_IMU_Values(void) {
@@ -10,7 +9,7 @@ void Null_IMU_Values(void) {
     gyr_x = gyr_y = gyr_z = 0;
     mag_x = mag_y = mag_z = 0;
     gravity_x = gravity_y = gravity_z = 0;
-    linear_acc_x = linear_acc_y = linear_acc_z = 0;
+    lin_acc_x = lin_acc_y = lin_acc_z = 0;
     last_acc_x = last_acc_y = last_acc_z = 0;
     last_gyr_x = last_gyr_y = last_gyr_z = 0;
     last_mag_x = last_mag_y = last_mag_z = 0;
@@ -122,6 +121,22 @@ void BNO_Man_Update_MAG(void){
     mag_z = I2C_1_Read_Byte(BNO_DEVICE, MAG_Z_LSB);
 
 }
+
+void BNO_Man_Update_LIN(void){
+    //Null_Timer_1();
+    //Timer_1_Start();
+    lin_acc_x = I2C_1_Read_Byte(BNO_DEVICE, LIA_X_MSB);
+    lin_acc_x >= 8;
+    lin_acc_x = I2C_1_Read_Byte(BNO_DEVICE, LIA_X_LSB);
+    delta_t = Compute_Delta_T();
+    lin_acc_y = I2C_1_Read_Byte(BNO_DEVICE, LIA_Y_MSB);
+    lin_acc_y >= 8;
+    lin_acc_y = I2C_1_Read_Byte(BNO_DEVICE, LIA_Y_LSB);
+    
+    lin_acc_z = I2C_1_Read_Byte(BNO_DEVICE, LIA_Z_MSB);
+    lin_acc_z >= 8;
+    lin_acc_z = I2C_1_Read_Byte(BNO_DEVICE, LIA_Z_LSB);
+}
 /******************************************************************************/
 void BNO_Full_Man_Update(void){
 
@@ -179,26 +194,30 @@ void Update_Text_Display(void){
 /******************************************************************************/
 void Update_New_Heading(void){
     
-    //Fix this when we get repeated read working
-    heading_Buffer[0] = I2C_1_Read_Byte(BNO_DEVICE,MAG_X_MSB);
-    heading_Buffer[0] <= 8;
-    heading_Buffer[0] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_X_LSB);
     
-    heading_Buffer[1] = I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_MSB);
-    heading_Buffer[1] <= 8;
-    heading_Buffer[1] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_LSB);
+    mag_x = I2C_1_Read_Byte(BNO_DEVICE,MAG_X_MSB);
+    mag_x <= 8;
+    mag_x |= I2C_1_Read_Byte(BNO_DEVICE,MAG_X_LSB);
     
-    heading_Buffer[2] = I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_MSB);
-    heading_Buffer[2] <= 8;
-    heading_Buffer[2] |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_LSB);
+    mag_y = I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_MSB);
+    mag_y <= 8;
+    mag_y |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_LSB);
     
+    mag_z = I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_MSB);
+    mag_z <= 8;
+    mag_z |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_LSB);
+    
+    uint32_t smag_x, smag_y, smag_z;
+    smag_x = abs(mag_x * mag_x);
+    smag_y = abs(mag_y * mag_y);
+    smag_z = abs(mag_z * mag_z);
     //Get a new magnitude to compute a unit vector
-    magnitude = (sqrt(pow(heading_Buffer[0],2) + pow(heading_Buffer[1], 2)  + pow(heading_Buffer[2], 2)));
-    
-    //Compute Unit Vector
-    mag_unit_x = (heading_Buffer[0] / magnitude);
-    mag_unit_y = (heading_Buffer[1] / magnitude);
-    mag_unit_z = (heading_Buffer[2] / magnitude);
+    uint32_t snorm = smag_x + smag_y + smag_z;
+    magnitude = sqrt(snorm);
+    //Compute Unit Vector --Problems start here
+    //mag_unit_x =(int16_t)(mag_x / magnitude);  
+    //mag_unit_y = (mag_y / magnitude);
+    //mag_unit_z = (mag_z / magnitude);
 }
 /******************************************************************************/
 /*
@@ -209,9 +228,9 @@ void Update_New_Heading(void){
 
 void Correct_Vectors (void){
     //Correct Lin Acc for Heading
-    correction_vector_x = ((heading_Buffer[0] * linear_acc_x)/magnitude)*mag_unit_x;
-    correction_vector_y = ((heading_Buffer[1] * linear_acc_y)/magnitude)*mag_unit_y;
-    correction_vector_z = ((heading_Buffer[2] * linear_acc_z)/magnitude)*mag_unit_z;
+    correction_vector_x = ((mag_x * lin_acc_x)/magnitude)*mag_unit_x;
+    correction_vector_y = ((mag_y * lin_acc_y)/magnitude)*mag_unit_y;
+    correction_vector_z = ((mag_z * lin_acc_z)/magnitude)*mag_unit_z;
     
     projection = correction_vector_x + correction_vector_y + correction_vector_z;
     
@@ -221,19 +240,20 @@ void Start_Delta_T(void){
     Null_Timer_1();
     Timer_1_Start();
 }
-int Read_Delta_T(void){
+int16_t Read_Delta_T(void){
     Timer_1_Stop();
     return Timer_1_Read();
 }
-int Compute_Delta_T(void){
+double Compute_Delta_T(void){
+    int16_t time = Read_Delta_T();
     double factor = (8/20000000L);
-    int delta_t_int = Timer_1_Read();
-    return (factor * delta_t_int);
+    return (factor * heading_Buffer[6]);
 }
 /******************************************************************************/    
-long int Compute_Position(void){
+int32_t Compute_Position(void){
     Correct_Vectors();
-    total_distance_r2 = (.5 * projection) * (pow(delta_t,2));
+    delta_t = Compute_Delta_T();
+    total_distance_r2 = (.5 * projection) * ((double)(delta_t * delta_t));
     //return total_distance_r3;
     return total_distance_r2;
 }

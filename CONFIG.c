@@ -45,12 +45,20 @@ void InitSystem(void) {
 
     InitClock();
     InitPins();
-    //InitInterruptSystem();
+    InitInterruptSystem();
 
 }
 
 void InitInterruptSystem(void){
     INTCONbits.MVEC = 1;            //Multi vector mode
+    __builtin_disable_interrupts();
+    IPC8bits.U1IP = 7;
+    IPC8bits.U1IS = 0;
+    IFS1bits.U1RXIF = 0;
+    IFS1bits.U1TXIF = 0;
+    IFS1bits.U1EIF = 0;
+    IEC1bits.U1RXIE = 1;
+    IEC1bits.U1TXIE = 0;
     __builtin_set_isr_state(0);     //Enable all interrupts
     __builtin_enable_interrupts();
 

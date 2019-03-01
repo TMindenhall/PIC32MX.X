@@ -8,7 +8,8 @@
 
 char Baud_Rate_Change_38400 [] = "$PMTK251,38400*27\r\n";
 char NMEA_Update_Rate [] = "$PMTK220,1000*1F\r\n";
-
+//volatile char rx;
+char debug_buff[4];
 char NMEA_Buffer_1 [79];
 char NMEA_Buffer_2 [79];
 char NMEA_Buffer_3 [79];

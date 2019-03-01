@@ -11,7 +11,9 @@
 #include "EUSART.h"
 
 void UART_1_Init (int baudrate){
-    
+    TRISAbits.TRISA4 = 1;
+    LATAbits.LATA3 = 0;
+    LATBbits.LATB5 = 0;
     int brg = 0;
     brg =(int)((_XTAL_FREQ / 8)/9600) - 1;
     U1MODEbits.BRGH = 0;        //High Speed Baud
@@ -29,12 +31,6 @@ void UART_1_Init (int baudrate){
     U1MODEbits.ON = 1;          //UART On
     U1STAbits.URXEN = 1;        //Enable Rx
     U1STAbits.UTXEN = 1;        //Enable Tx
-    
-    IEC1bits.U1RXIE = 1;
-    IEC1bits.U1TXIE = 0;
-    
-    IFS1bits.U1RXIF = 0;
-    IFS1bits.U1TXIF = 0;
     
 }
 
