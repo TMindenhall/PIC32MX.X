@@ -1,21 +1,14 @@
-/* ************************************************************************** */
-/** Descriptive File Name
-  @File CONFIG
-    CONFIG.h
-
-  @Summary
- Configuration settings for PIC32MX
-
-  @Description
- Configuration setting for PIC32MX
- * 
- * /* TODO:  Test and work */
- /*
-/* ************************************************************************** */
-
+//*******************************************************************//
+// File: CONFIG.h                                                    //
+// Author: Thomas Mindenhall                                         //
+// Project: Backpack Buddy                                           //
+//                                                                   //
+//                                                                   //
+// Description:  Configuration proto's and defines                   //
+//                                                                   //
+//*******************************************************************//
 #ifndef _CONFIG_H    /* Guard against multiple inclusion */
 #define _CONFIG_H
-
 
 /* ************************************************************************** */
 /*                               INCLUDES                                     */
@@ -27,7 +20,8 @@
 /*                               CONSTANTS                                    */
 /* ************************************************************************** */
 
-#define _XTAL_FREQ 40000000L
+#define _XTAL_FREQ  40000000L
+#define PB_FREQ     20000000L
 
 static void InitPins(void);
 static void InitClock(void);

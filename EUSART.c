@@ -12,11 +12,18 @@
 
 void UART_1_Init (int baudrate){
     TRISAbits.TRISA4 = 1;
-    LATAbits.LATA3 = 0;
-    LATBbits.LATB5 = 0;
+    LATBbits.LATB0 = 0;
+    LATBbits.LATB1 = 0;
     int brg = 0;
-    brg =(int)((_XTAL_FREQ / 8)/9600) - 1;
     U1MODEbits.BRGH = 0;        //High Speed Baud
+    
+    /*TODO : Check this function*/
+    if(U1MODEbits.BRGH){
+        brg = (int)((PB_FREQ / 4) / baudrate) - 1;
+    }
+    else{
+        brg = (int)((PB_FREQ / 16) / baudrate) - 1;
+    }
     U1BRG = 129;
     //U1BRG = 519;                //If BRGH 
     U1MODEbits.UEN = 0;         //Rx/Tx enabled and used
@@ -35,14 +42,20 @@ void UART_1_Init (int baudrate){
 }
 
 void UART_2_Init (int baudrate){
+    int brg;
     
-/******************************************************************************/
-/*                                  FIX ME                                    */
-/******************************************************************************/
+    TRISAbits.TRISA1 = 1;
+    LATBbits.LATB6 = 0;
+    LATBbits.LATB3 = 0;
     
-    int brg = 0;
-    brg =(int)((_XTAL_FREQ / 8)/9600) - 1;
     U2MODEbits.BRGH = 0;        //High Speed Baud
+    /*TODO : Check this function*/
+    if(U2MODEbits.BRGH){
+        brg = (int)((PB_FREQ / 4) / baudrate) - 1;
+    }
+    else{
+        brg = (int)((PB_FREQ / 16) / baudrate) - 1;
+    }
     U2BRG = 129;
     //U2BRG = 519;                //If BRGH
     U2MODEbits.UEN = 0;         //Rx/Tx enabled and used
@@ -57,13 +70,7 @@ void UART_2_Init (int baudrate){
     U2MODEbits.ON = 1;          //UART On
     U2STAbits.URXEN = 1;        //Enable Rx
     U2STAbits.UTXEN = 1;        //Enable Tx
-    
-    IEC1bits.U2RXIE = 1;
-    IEC1bits.U2TXIE = 0;
-    
-    IFS1bits.U2RXIF = 0;
-    IFS1bits.U2TXIF = 0;
-    
+
 }
 
 void Send_String_U1 (char *ptr){

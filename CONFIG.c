@@ -52,6 +52,7 @@ void InitSystem(void) {
 void InitInterruptSystem(void){
     INTCONbits.MVEC = 1;            //Multi vector mode
     __builtin_disable_interrupts();
+    
     IPC8bits.U1IP = 7;
     IPC8bits.U1IS = 0;
     IFS1bits.U1RXIF = 0;
@@ -59,6 +60,16 @@ void InitInterruptSystem(void){
     IFS1bits.U1EIF = 0;
     IEC1bits.U1RXIE = 1;
     IEC1bits.U1TXIE = 0;
+    
+    IPC9bits.U2IP = 7;
+    IPC9bits.U2IS = 0;
+    IFS1bits.U2EIF = 0;
+    IFS1bits.U2RXIF = 0;
+    IFS1bits.U2TXIF = 0;
+    IEC1bits.U2EIE = 0;
+    IEC1bits.U2RXIE = 1;
+    IEC1bits.U2TXIE = 0;
+    
     __builtin_set_isr_state(0);     //Enable all interrupts
     __builtin_enable_interrupts();
 
@@ -76,17 +87,19 @@ void InitPins(void) {
     TRISB = 0;
     SYSKEY = 0xaa996655;        //Unique ID
     SYSKEY = 0x556699aa;        //ID in reverse
-    CFGCONbits.IOLOCK = 0;      
-    //Set PPS registers here
-    //SDI1R = 3;  
+    CFGCONbits.IOLOCK = 0;
+    
+    //Set PPS registers here 
     RPB13R = 3; //SDO1 (0011)
     RPB15R = 3; //SS1 (0011)
     U1RXR = 2;  //RA4 (RX1)
     RPB4R = 1;  //RB4 (TX1)
     U2RXR = 0;  //RA1 (RX2)
-    //RPA3R = 2;  //RB3 (TX2)
-    RPA3R = 1; // RA3 (U1RTS)
-    U1CTSR = 1; //RB5 (U1CTS)
+    RPA3R = 2;  //RB3 (TX2)
+    RPB0R = 1; // RB0 (U1RTS)
+    U1CTSR = 2; //RB1 (U1CTS)
+    U2CTSR = 1; //RB6 (U1CTS)
+    RPB3R = 2;  //RB3 (U1RTS)
     
     CFGCONbits.IOLOCK = 1;
     SYSKEY = 0x33333333; 
