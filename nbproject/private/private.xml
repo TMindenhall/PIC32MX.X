@@ -4,8 +4,17 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/EUSART.c</file>
-            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/main.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/MT3339.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/BNO055.h</file>
             <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/CONFIG.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/Delay.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/CONFIG.h</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/BNO055.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/I2C.h</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/main.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/ILI9341.h</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/I2C.c</file>
+            <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/MT3339.h</file>
             <file>file:/C:/Users/tmind/Desktop/Archive/Fall%202018/Senior%20I/PIC32MX.X-20190128T014002Z-001/PIC32MX.X/Interrupts.c</file>
         </group>
     </open-files>

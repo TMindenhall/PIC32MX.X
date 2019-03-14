@@ -3,10 +3,10 @@ main.c  \
 Config.h  \
 EUSART.h  \
 I2C.h  \
-ILI9341.h  \
- SPI.h  \
-CONFIG.h  \
-FONT.h  \
 BNO055.h  \
+ CONFIG.h  \
 Delay.h  \
+ILI9341.h  \
+SPI.h  \
+FONT.h  \
 MT3339.h 

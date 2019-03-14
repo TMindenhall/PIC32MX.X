@@ -33,7 +33,8 @@ char c;
 char str_buffer_msg[] = "UART 1 Configured\r\n";
 //NMEA Strings
 int i;
-long int distance;
+uint32_t distance;
+uint16_t delta_t;
 int main(void) {
     //Config Functions
     //Inits
@@ -51,35 +52,26 @@ int main(void) {
     BNO_Init();
     //BNO_Cal_Routine();
     TFT_FillScreen(BLACK);
-    Done_Message();
-    distance = 0;
-    c = 0;
     sprintf(buffer_1, "Distance:");
     TFT_Text(buffer_1, 0, 0, WHITE, BLACK);
     Timer_1_Init();
     int32_t c = 0;
-    char mag_byte_0,mag_byte_1,mag_byte_2,mag_byte_3;
     while (1) {
     /**************************************************************************/   
-            
-        Update_New_Heading();
-        sprintf(buffer_1,"%d/%d/%d", mag_x, mag_y, mag_z);
-        TFT_Text(buffer_1, 0, 20, WHITE, BLACK);
-        mag_byte_0 = mag_byte_1 = mag_byte_2 = mag_byte_3 = 0;
-        mag_byte_0 |= (magnitude);
-        mag_byte_1 |= (magnitude >> 8);
-        mag_byte_2 |= (magnitude >> 16);
-        mag_byte_3 |= (magnitude >> 24);
-        sprintf(buffer_1, "%u%u%u%u", mag_byte_3,mag_byte_2,mag_byte_1,mag_byte_0);
-        TFT_Text(buffer_1, 0, 60, WHITE, BLACK);
-        BNO_Man_Update_LIN();
-        
+        c++;   
+        Read_LIN();
+        sprintf(buffer_1,"LIN x: %d\r\n",lin_acc_x);
         Send_String_U1(buffer_1);
+        sprintf(buffer_1,"LIN y: %d\r\n",lin_acc_y);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1,"LIN z: %d\r\n",lin_acc_z);
+        Send_String_U1(buffer_1);
+        delta_t = Get_Delta_T();
+        sprintf(buffer_1, "%d\r\n",delta_t);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1," %d ",c);
+        TFT_Text(buffer_1, 0, 20, BLACK, WHITE);
         Delay_ms(1000);
-        c++;
-        sprintf(buffer_1,"Delay %d", c);
-        TFT_Text(buffer_1,0,100,WHITE,BLACK);
-        //TFT_Text(buffer_1,20,40,BLACK,WHITE);
    /***************************************************************************/    
     }
 }

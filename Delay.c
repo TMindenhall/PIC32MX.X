@@ -8,8 +8,6 @@ void Timer_1_Init(void){
     T1CONbits.ON = 0;       //disable Timer
     T1CONbits.TCKPS = 1;    //1:8 Clock Prescale
     T1CONbits.TCS = 0;      //Timer Clock Source set to internal peripheral clock
-    TMR1 = 0xF63C;          //Timer 1 starts at 63036 for a 1 ms clock
-    
 }
 void Timer_1_Start(void){   //turn the timer on
     T1CONbits.ON = 1;

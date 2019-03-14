@@ -193,20 +193,12 @@ void Update_Text_Display(void){
 }
 /******************************************************************************/
 void Update_New_Heading(void){
-    
-    
-    mag_x = I2C_1_Read_Byte(BNO_DEVICE,MAG_X_MSB);
-    mag_x <= 8;
-    mag_x |= I2C_1_Read_Byte(BNO_DEVICE,MAG_X_LSB);
-    
-    mag_y = I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_MSB);
-    mag_y <= 8;
-    mag_y |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Y_LSB);
-    
-    mag_z = I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_MSB);
-    mag_z <= 8;
-    mag_z |= I2C_1_Read_Byte(BNO_DEVICE,MAG_Z_LSB);
-    
+    Start_Delta_T();
+    I2C_1_Repeated_Read(BNO_DEVICE,MAG_X_LSB,6);
+    mag_x = (Xfer_Int(1)<<8)|(Xfer_Int(0));
+    mag_y = (Xfer_Int(3)<<8)|(Xfer_Int(2));
+    mag_z = (Xfer_Int(5)<<8)|(Xfer_Int(4));
+    delta_t = Compute_Delta_T();
     uint32_t smag_x, smag_y, smag_z;
     smag_x = abs(mag_x * mag_x);
     smag_y = abs(mag_y * mag_y);
@@ -215,9 +207,18 @@ void Update_New_Heading(void){
     uint32_t snorm = smag_x + smag_y + smag_z;
     magnitude = sqrt(snorm);
     //Compute Unit Vector --Problems start here
-    //mag_unit_x =(int16_t)(mag_x / magnitude);  
-    //mag_unit_y = (mag_y / magnitude);
-    //mag_unit_z = (mag_z / magnitude);
+    mag_unit_x = ((mag_x) / (magnitude + 1));  
+    mag_unit_y = ((mag_y) / (magnitude + 1)); 
+    mag_unit_z = ((mag_z) / (magnitude + 1)); 
+}
+
+void Read_LIN(void){
+    Start_Delta_T();
+    I2C_1_Repeated_Read(BNO_DEVICE,LIA_X_LSB,6);
+    lin_acc_x = (int16_t)((Xfer_Int(1)<<8)|(Xfer_Int(0)))/10;
+    lin_acc_y = (int16_t)((Xfer_Int(3)<<8)|(Xfer_Int(2)))/10;
+    lin_acc_z = (int16_t)((Xfer_Int(5)<<8)|(Xfer_Int(4)))/10;
+    delta_t = Compute_Delta_T();
 }
 /******************************************************************************/
 /*
@@ -225,7 +226,6 @@ void Update_New_Heading(void){
  * the gravity vector. We also want only the Linear Acc in the direction of the
  * heading. 
  */
-
 void Correct_Vectors (void){
     //Correct Lin Acc for Heading
     correction_vector_x = ((mag_x * lin_acc_x)/magnitude)*mag_unit_x;
@@ -246,8 +246,9 @@ int16_t Read_Delta_T(void){
 }
 double Compute_Delta_T(void){
     int16_t time = Read_Delta_T();
-    double factor = (8/20000000L);
-    return (factor * heading_Buffer[6]);
+    ///double factor = (8/20000000L);
+    //return (factor * time);
+    return time;
 }
 /******************************************************************************/    
 int32_t Compute_Position(void){
@@ -256,6 +257,10 @@ int32_t Compute_Position(void){
     total_distance_r2 = (.5 * projection) * ((double)(delta_t * delta_t));
     //return total_distance_r3;
     return total_distance_r2;
+}
+
+uint16_t Get_Delta_T(void){
+    return delta_t;
 }
 /*****************************************************************************/
 /*****************************END OF FILE*************************************/

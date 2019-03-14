@@ -177,15 +177,15 @@ void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
         while (!I2C1STATbits.RBF); // wait till buffer is full
         Recieve_Buffer[rx] = I2C1RCV;
         //Handling ACK/NACK for repeated reception
-        if (rx != (num_bytes - 1)) { // If were not on the last byte send ACK
-            I2C1CONbits.ACKDT = 0;
-        } else { // If were on the last byte send NACK
+        if (rx == (num_bytes - 1)) { // If were not on the last byte send ACK
             I2C1CONbits.ACKDT = 1;
+        } else { // If were on the last byte send NACK
+            I2C1CONbits.ACKDT = 0;
         }
         I2C1CONbits.ACKEN = 1; //Send ACK/NACK
         while (I2C1CONbits.ACKEN);
         rx++;
-        Delay_ms(5);
+        //Delay_ms(5);
     }
 
     I2C1CONbits.PEN = 1; //Stop condition
