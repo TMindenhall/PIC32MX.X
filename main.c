@@ -40,7 +40,7 @@ int main(void) {
     //Inits
     InitSystem();
     SPI1_Init();
-    UART_1_Init(9600);
+    GPS_Init();
     Send_String_U1(str_buffer_msg);
     I2C_1_Init();
     TFT_Init();
@@ -57,21 +57,15 @@ int main(void) {
     Timer_1_Init();
     int32_t c = 0;
     while (1) {
-    /**************************************************************************/   
-        c++;   
-        Read_LIN();
-        sprintf(buffer_1,"LIN x: %d\r\n",lin_acc_x);
-        Send_String_U1(buffer_1);
-        sprintf(buffer_1,"LIN y: %d\r\n",lin_acc_y);
-        Send_String_U1(buffer_1);
-        sprintf(buffer_1,"LIN z: %d\r\n",lin_acc_z);
-        Send_String_U1(buffer_1);
-        delta_t = Get_Delta_T();
-        sprintf(buffer_1, "%d\r\n",delta_t);
-        Send_String_U1(buffer_1);
-        sprintf(buffer_1," %d ",c);
-        TFT_Text(buffer_1, 0, 20, BLACK, WHITE);
-        Delay_ms(1000);
+    /**************************************************************************/ 
+        
+        if(NMEA_Flag){
+            sprintf(buffer_1,"%c : %d\r",NMEA_Xfer_Buff[nmea_index],nmea_index);
+            Send_String_U1(buffer_1);
+            GPS_String_Handler(); //puts characters into Xfer Buffer
+            rx_nmea = 0;
+        }
+        
    /***************************************************************************/    
     }
 }
