@@ -8,3 +8,5 @@ dist/default/production/PIC32MX.X.production.map
 dist/default/production/PIC32MX.X.production.hex
 dist/default/production/PIC32MX.X.production.elf
 dist/default/production/memoryfile.xml
+
+*.mk
