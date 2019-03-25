@@ -7,9 +7,25 @@
 // Description: UART Config and Use                                  //
 //                                                                   //
 //*******************************************************************//
+
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include "Config.h"
 #include "EUSART.h"
 
+
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Initializes UART 1
+ * 
+ * Inputs: Desired baudrate as an integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void UART_1_Init(int baudrate) {
     TRISAbits.TRISA4 = 1;
     LATBbits.LATB0 = 0;
@@ -40,6 +56,13 @@ void UART_1_Init(int baudrate) {
 
 }
 
+/******************************************************************************
+ * Description: Initializes UART 2
+ * 
+ * Inputs: Desired baudrate as an integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void UART_2_Init(int baudrate) {
     int brg;
 
@@ -71,6 +94,13 @@ void UART_2_Init(int baudrate) {
 
 }
 
+/******************************************************************************
+ * Description: Sends a string via UART 1 char by char till null.
+ * 
+ * Inputs: Pointer to desired string.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void Send_String_U1(char *ptr) {
 
     while (*ptr != '\0') {
@@ -80,6 +110,13 @@ void Send_String_U1(char *ptr) {
     }
 }
 
+/******************************************************************************
+ * Description: Sends a string via UART 2 char by char till null.
+ * 
+ * Inputs: Pointer to desired string.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void Send_String_U2(char *ptr) {
 
     while (*ptr != '\0') {

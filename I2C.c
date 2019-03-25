@@ -8,14 +8,25 @@
 //                                                                   //
 //*******************************************************************// 
 
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include <proc/p32mx170f256b.h>
 #include "I2C.h"
  
 //Refer to I2C.h for Address Defines
 
-//RB9 = SDA1
-//RB8 = SCL1
-/*****************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Initializes I2C Port 1.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void I2C_1_Init(void){
     flag = 0;
     //Set Baud Rates
@@ -34,7 +45,14 @@ void I2C_1_Init(void){
     IFS1bits.I2C1BIF = 0;
     
 }
-/*****************************************************************************/
+
+/******************************************************************************
+ * Description: Initializes I2C Port 2.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void I2C_2_Init(void){
     
     //Set Baud Rates
@@ -46,7 +64,14 @@ void I2C_2_Init(void){
     
     
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Reads a single register as a byte from I2C Port 1.
+ * 
+ * Inputs: Device Address and Register Address.
+ * 
+ * Returns: Value as a Byte.
+ ******************************************************************************/
 char I2C_1_Read_Byte(char device_adr, char reg_adr){
     
     char rx;
@@ -77,7 +102,14 @@ char I2C_1_Read_Byte(char device_adr, char reg_adr){
     while (I2C1CONbits.PEN == 1);       //Wait for stop to finish
     return rx;
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Reads a single register as a byte from I2C Port 2.
+ * 
+ * Inputs: Device Address and Register Address.
+ * 
+ * Returns: Value as a Byte.
+ ******************************************************************************/
 char I2C_2_Read_Byte(char device_adr, char reg_adr){
     
     char rx;
@@ -101,7 +133,14 @@ char I2C_2_Read_Byte(char device_adr, char reg_adr){
     while (I2C2CONbits.PEN == 1);       //Wait for stop to finish
     return rx;
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Writes to a single register as a byte from I2C Port 1.
+ * 
+ * Inputs: Device Address and Register Address, Value to be written as a Byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
     char data;
     
@@ -129,7 +168,14 @@ void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
     I2C1CONbits.PEN = 1;                //Stop condition
     while (I2C1CONbits.PEN == 1);       //Wait for stop to finish
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Writes to a single register as a byte from I2C Port 2.
+ * 
+ * Inputs: Device Address and Register Address, Value to be written as a Byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
     char data;
     
@@ -148,7 +194,15 @@ void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
     I2C2CONbits.PEN = 1;                //Stop condition
     while (I2C2CONbits.PEN == 1);       //Wait for stop to finish
 }
-/*****************************************************************************/
+
+/******************************************************************************
+ * Description: Reads multiple registers from a device via I2C Port 1. Stores 
+ * the values into a buffer Recieve_Buffer.
+ * 
+ * Inputs: Device Address, Start Register Address, Number of bytes to read.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
 
     char rx;
@@ -192,12 +246,27 @@ void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
     while (I2C1CONbits.PEN == 1); //Wait for stop to finish
     
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Transfers a single byte out of a buffer (Recieve_Buffer) at a
+ * specified address.
+ * 
+ * Inputs: Register address.
+ * 
+ * Returns: Value inside of register as a byte (signed).
+ ******************************************************************************/
 int Xfer_Int (char adr){
     
     return Recieve_Buffer[adr];
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Reads a flag.
+ * 
+ * Inputs: NULL (VOID)
+ * 
+ * Returns: Value of the flag as a integer.
+ ******************************************************************************/
 int Read_Flag (void){
 
     return flag;

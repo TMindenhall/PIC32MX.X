@@ -8,11 +8,30 @@
 //                                                                   //
 //*******************************************************************//
 
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include <xc.h>
 #include "CONFIG.h"
 #include "SPI.h"
+
+////////////////////////////////////////////////////////////////////////////////
+//*********************************GLOBALS************************************//
+////////////////////////////////////////////////////////////////////////////////
 char rx;
 
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Initializes SPI Port 1. Must be called after System Init due
+ * to PPS pins. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void SPI1_Init(void) {
     
     ANSELBbits.ANSB15 = 0; //SS1
@@ -50,11 +69,25 @@ void SPI1_Init(void) {
 
 }
 
+/******************************************************************************
+ * Description: Disables the SPI Port 1. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void SPI1_Close(void) {
     //turn off the SSPEN leave the rest the same
     SPI1CONbits.ON = 0;
 }
 
+/******************************************************************************
+ * Description: Writes a byte over SPI Port 1 bus. 
+ * 
+ * Inputs: Byte to be written.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void SPI1_Write(unsigned char data) {
     int i;
     IFS1bits.SPI1TXIF = 0;
@@ -68,8 +101,16 @@ void SPI1_Write(unsigned char data) {
     dummy = SPI1BUF;                    //Read the buffer
 }
 
+/******************************************************************************
+ * Description: Reads from SPI Port 1. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: Returns the buffer of SPI Port 1 (Varies in size due to SPI settings.
+ ******************************************************************************/
 unsigned char SPI1_Read(void) {
     SPI1BUF = 0x00;                     //Put something into the register
     while (!SPI1STATbits.SPITBE);      //Wait till our buffer is full
     return SPI1BUF;                     //Return the byte we get
 }
+/* END OF FILE */

@@ -4,4 +4,6 @@ MT3339.h  \
 CONFIG.h  \
  EUSART.h  \
 Config.h  \
-ILI9341.h 
+ILI9341.h  \
+SPI.h  \
+DELAY.h 

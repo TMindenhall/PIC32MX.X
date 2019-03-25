@@ -4,4 +4,6 @@ I2C.h  \
 BNO055.h  \
 CONFIG.h  \
 Delay.h  \
- ILI9341.h 
+ ILI9341.h  \
+SPI.h  \
+DELAY.h 

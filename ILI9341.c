@@ -1,14 +1,6 @@
-/*
- * File:   ILI9341.c
- * Author: Thomas Mindenhall 
- * 
- * Graphical display TFT 240x320. 
- * Driver ILI9341.
- * Interface: SPI.
- * Version 1.0
- */
-#include <xc.h>
-#include "SPI.h"
+
+
+
 //*******************************************************************//
 // File: ILI9341.c                                                   //
 // Author: Thomas Mindenhall                                         //
@@ -16,20 +8,39 @@
 //                                                                   //
 //                                                                   //
 // Description:  Writing and Configuring the TFT                     //
+//                                                                   //            
+// Graphical display TFT 240x320.                                    //                               
+// Driver ILI9341.                                                   //
+// Interface: SPI.                                                   //
+// Version 1.0                                                       //
 //                                                                   //
-//*******************************************************************//
-#include "ILI9341.h"
-//#include "DELAY.h"
+//                                                                   //
+//********************************************************************/
 
-//==============================================================================
-// Declaration of global variables.
-//==============================================================================
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
+#include "ILI9341.h"
+
+
+////////////////////////////////////////////////////////////////////////////////
+//*********************************GLOBALS************************************//
+////////////////////////////////////////////////////////////////////////////////
 CUchar *font, *font2; //Font ptrs
 Uchar width, height, letter_spacing, dot_size = 0, frame_memory = TFT_VERTICAL; 
 Uint tft_x = TFT_W - 1;
-//==============================================================================
-// This function initializes the driver ILI9341.
-//==============================================================================
+
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Initializes the TFT display via SPI Port 1.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Init(void){
 TRIS_CS = 0; TRIS_DC = 0; TRIS_RES = 0;
 TFT_CS = 1; TFT_DC = 0; TFT_RES = 0;
@@ -133,26 +144,31 @@ TFT_WriteParameter(0x36);
 TFT_WriteParameter(0x0F); 
 
 TFT_WriteCommand(0x11);   // Exit Sleep
-/******************************************************************************/
-/*                             FIX ME                                         */
-/******************************************************************************/
-//Delay_ms(150);            // Delay of 
+Delay_ms(25);             // Delay of 
 TFT_WriteCommand(0x29);   // Display ON (29h)
 TFT_FillScreen(BLACK);
 }
 
-//==============================================================================
-// This function resets the display TFT.
-//==============================================================================
+/******************************************************************************
+ * Description: Resets the TFT display.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Reset(void){
 TFT_CS = 1;        
-TFT_RES = 0; //Delay_ms(50);
-TFT_RES = 1; //Delay_ms(150);
+TFT_RES = 0; Delay_ms(50);
+TFT_RES = 1; Delay_ms(150);
 }
 
-//==============================================================================
-// This function writes a command.
-//==============================================================================
+/******************************************************************************
+ * Description: Write a command to the TFT display via SPI Port 1.
+ * 
+ * Inputs: Command value as an unsigned byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_WriteCommand(Uchar command){   
 TFT_CS = 0;
 TFT_DC = 0; // When DCX = ?0?, command is selected.
@@ -160,9 +176,13 @@ SPI1_Write(command);
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function writes a Parameter.
-//==============================================================================
+/******************************************************************************
+ * Description: Writes a parameter to the TFT display via SPI Port 1.
+ * 
+ * Inputs: Parameter value as an unsigned byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_WriteParameter(Uchar parameter){   
 TFT_CS = 0;
 TFT_DC = 1; // When DCX = ?1?, data is selected.
@@ -170,13 +190,19 @@ SPI1_Write(parameter);
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function is used to define area of frame memory where MCU can access.
-// x1: Set start column address. 
-// x2: Set end column address. 
-// y1: Set start page address.
-// y2: Set end page address.
-//==============================================================================
+/******************************************************************************
+ * Description: This function is used to define area of frame memory where 
+ * MCU can access.
+ * 
+ * x1: Set start column address. 
+ * x2: Set end column address.
+ * y1: Set start page address.
+ * y2: Set end page address.
+ * 
+ * Inputs: Start bound of x and y, End bound of x and y both as unsigned ints.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_ColumnPage(Uint x1, Uint x2, Uint y1, Uint y2){      
 TFT_CS = 0;
 TFT_DC = 0; SPI1_Write(0x2A);
@@ -187,9 +213,13 @@ TFT_DC = 0; SPI1_Write(0x2C);
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function sets the memory access control. 
-//==============================================================================
+/******************************************************************************
+ * Description: This function sets the memory access control. 
+ * 
+ * Inputs: memory frame value as an unsigned byte.
+ * 
+ * Returns: returns frame value as an unsigned byte.
+ ******************************************************************************/
 Uchar TFT_MemoryAccessControl(Uchar frame_memory_){
 if(frame_memory_ == 0){return frame_memory;}
 TFT_WriteCommand(0x36);
@@ -204,11 +234,15 @@ frame_memory = frame_memory_;
 return frame_memory;
 } 
 
-//==============================================================================
-// This function is used to convert 24 bpp color data to 5-6-5 RGB format.
-// 16 bit/pixel color order (R:5-bit, G:6-bit, B:5-bit), 65,536 colors.
-// 8-8-8 to to 5-6-5 conversion.
-//==============================================================================
+/******************************************************************************
+ * Description: This function is used to convert 24 bpp color data to 5-6-5 RGB 
+ * format. 16 bit/pixel color order (R:5-bit, G:6-bit, B:5-bit), 65,536 colors.
+ * 8-8-8 to to 5-6-5 conversion.  
+ * 
+ * Inputs: value of red, green, and blue as unsigned integers.
+ * 
+ * Returns: returns the color value in RGB unsigned integer.
+ ******************************************************************************/
 Uint TFT_RGBConvert(Uint red, Uint green, Uint blue){
 Uint color = 0;
 red = (red & 0xF8) << 8; 
@@ -218,12 +252,16 @@ color = red | green | blue;
 return color;
 }
 
-//==============================================================================
-// This function draws a pixel on TFT.
-// x: x position. Valid values: 0..240 
-// y: y position. Valid values: 0..320 
-// color: color parameter.
-//==============================================================================
+/******************************************************************************
+ * Description: This function draws a pixel on TFT. 
+ * x: x position. Valid values: 0..240
+ * y: y position. Valid values: 0..320  
+ * color: color parameter.
+ * 
+ * Inputs: value of x and y coord' and color of pixle as unsigned integers.
+ * 
+ * Returns: NULL(VOID).
+ ******************************************************************************/
 void TFT_Pixel(Uint x, Uint y, Uint color){
 TFT_CS = 0;
 TFT_DC = 0; SPI1_Write(0x2A);
@@ -235,20 +273,28 @@ TFT_DC = 1; SPI1_Write(color >> 8); SPI1_Write(color & 0xFF);
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function sets the size of dot.
-// size_: Size of dot. Valid values: 0, 1, 2, 3, 4, 5.
-//==============================================================================
+/******************************************************************************
+ * Description: This function sets the size of dot. 
+ * Valid values: 0, 1, 2, 3, 4, 5.
+ * 
+ * Inputs: size of dot as unsigned byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_SetDotSize(Uchar size_){
 dot_size = size_;
 }
 
-//==============================================================================
-// This function draws a dot on TFT.
-// x: x position. Valid values: 0..240 
-// y: y position. Valid values: 0..320 
-// color: color parameter.
-//==============================================================================
+/******************************************************************************
+ * Description: This function draws a dot on TFT. 
+ * x: x position. Valid values: 0..240
+ * y: y position. Valid values: 0..320
+ * color: color parameter.
+ * 
+ * Inputs: x and y coord' and color as unsigned integers.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Dot(Uint x, Uint y, Uint color){
 Uchar i;
 switch(dot_size)
@@ -272,28 +318,42 @@ while(i)
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function sets the type of font.
-// letterspacing: Letter spacing. Valid values: 1, 2, 3...
-//==============================================================================
+/******************************************************************************
+ * Description: This function sets the type of font. 
+ * letterspacing: Letter spacing. Valid values: 1, 2, 3...
+ * 
+ * Inputs: Pointer to font buffer, letter spacing as unsigned byte.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_SetFont(CUchar *font_, Uchar letterspacing){
 font2 = font_;
 letter_spacing = letterspacing;
 height = TFT_CharHeight();
 }
 
-//==============================================================================
-// This function returns the height of character. The size is determined in pixels.
-//==============================================================================
+/******************************************************************************
+ * Description: This function returns the height of character. The size is 
+ * determined in pixels.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: Returns formatted character height in font as unsigned byte
+ ******************************************************************************/
 Uchar TFT_CharHeight(void){
 font = font2;
 font += 6;
 return *font;
 }
 
-//==============================================================================
-// This function returns the width of text. The size is determined in pixels.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function returns the width of text. The size is 
+ * determined in pixels.
+ * 
+ * Inputs: Pointer to character buffer.
+ * 
+ * Returns: Returns formatted character width in font as unsigned byte
+ ******************************************************************************/
 Uint TFT_TextWidth(Schar *buffer){
 Uint p, text_width = 0;
 while(*buffer)
@@ -308,14 +368,19 @@ while(*buffer)
 return text_width;
 }
 
-//==============================================================================
-// This function draws a character on the TFT.
-// c: character to be written. 
-// x: x position. Valid values: 0..240 
-// y: y position. Valid values: 0..320 
-// color1: Top color.
-// color2: Bottom color.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a character on the TFT. 
+ * c: character to be written. 
+ * x: x position. Valid values: 0..240 
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Character value as unsigned byte.
+ * x and y coord' as unsigned integers. Front and Back colors as unsigned ints.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_WriteChar(Uchar c, Uint x, Uint y, Uint color1, Uint color2){
 Uchar i, j, k;
 Uint p;
@@ -349,14 +414,19 @@ i--;
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function writes text constant on TFT.
-// buffer: Pointer to read all the array.
-// x: x position. Valid values: 0..240 
-// y: y position. Valid values: 0..320 
-// color1: Top color.
-// color2: Bottom color.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function writes text constant on TFT.
+ * buffer: Pointer to read all the array. 
+ * x: x position. Valid values: 0..240 
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Pointer to character buffer.
+ * x and y coord' as unsigned integers. Front and Back colors as unsigned ints.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_ConstText(CSchar *buffer, Uint x, Uint y, Uint color1, Uint color2){
 while(*buffer)                
      {
@@ -366,14 +436,19 @@ while(*buffer)
      } 
 }
 
-//==============================================================================
-// This function writes text variable on TFT.
-// buffer: Pointer to read all the array.
-// x: x position. Valid values: 0..240 
-// y: y position. Valid values: 0..320 
-// color1: Top color.
-// color2: Bottom color.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function writes text variable on TFT.
+ * buffer: Pointer to read all the array. 
+ * x: x position. Valid values: 0..240 
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Pointer to character buffer.
+ * x and y coord' as unsigned integers. Front and Back colors as unsigned ints.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Text(Schar *buffer, Uint x, Uint y, Uint color1, Uint color2){
 while(*buffer)                
      {
@@ -383,13 +458,18 @@ while(*buffer)
      } 
 }
 
-//==============================================================================
-// These functions write text with alignment. 
-// buffer: Pointer to read all the array.
-// y: y position. Valid values: 0..320 
-// color1: Top color.
-// color2: Bottom color.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function writes text with alignment to LEFT. 
+ * buffer: Pointer to read all the array.  
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Pointer to character buffer.
+ * y coord' as unsigned integer. Front and Back colors as unsigned integers.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_TextLEFT(Schar *buffer, Uint y, Uint color1, Uint color2){
 Uint x = 0;
 while(*buffer)                
@@ -401,6 +481,18 @@ while(*buffer)
 TFT_Box(x, y, tft_x, y + height - 1, color2);
 }
 
+/******************************************************************************
+ * Description:  This function writes text with alignment to CENTER.  
+ * buffer: Pointer to read all the array.  
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Pointer to character buffer.
+ * y coord' as unsigned integer. Front and Back colors as unsigned integers.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_TextCENTER(Schar *buffer, Uint y, Uint color1, Uint color2){
 Uint x;
 x = TFT_TextWidth(buffer);
@@ -417,6 +509,18 @@ while(*buffer)
 TFT_Box(x, y, tft_x, y + height - 1, color2);
 }
 
+/******************************************************************************
+ * Description:  This function writes text with alignment to RIGHT.  
+ * buffer: Pointer to read all the array.  
+ * y: y position. Valid values: 0..320
+ * color1: Top color.
+ * color2: Bottom color.
+ * 
+ * Inputs: Pointer to character buffer.
+ * y coord' as unsigned integer. Front and Back colors as unsigned integers.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_TextRIGHT(Schar *buffer, Uint y, Uint color1, Uint color2){
 Uint x;
 x = TFT_TextWidth(buffer);
@@ -431,10 +535,14 @@ while(*buffer)
      }
 }
 
-//==============================================================================
-// This function fills screen with given color.  
-// color: color parameter.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function fills screen with given color.  
+ * color: color parameter..
+ * 
+ * Inputs: Color as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_FillScreen(Uint color){    
 Uchar DH, DL;
 Uint i, j;
@@ -457,14 +565,19 @@ for(i = 0; i < TFT_H; i++)
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function draws a box on TFT.
-// x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
-// y1: y coordinate of the upper left rectangle corner. Valid values: 0..320 
-// x2: x coordinate of the lower right rectangle corner. Valid values: 0..240 
-// y2: y coordinate of the lower right rectangle corner. Valid values: 0..320 
-// color: color parameter. 
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a box on TFT.  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * x2: x coordinate of the lower right rectangle corner. Valid values: 0..240
+ * y2: y coordinate of the lower right rectangle corner. Valid values: 0..320
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. End x and y coord' as
+ * unsigned integers. color of outline as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Box(Uint x1, Uint y1, Uint x2, Uint y2, Uint color){
 Uchar DH, DL;
 Uint i, j;
@@ -483,14 +596,19 @@ for(i = y1; i <= y2; i++)
 TFT_CS = 1;
 }
 
-//==============================================================================
-// This function draws a line on TFT (Bresenham algorithm). 
-// x1: x coordinate of the line start. Valid values: 0..240
-// y1: y coordinate of the line start. Valid values: 0..320 
-// x2: x coordinate of the line end. Valid values: 0..240 
-// y2: y coordinate of the line end. Valid values: 0..320 
-// color: color parameter.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a line on TFT (Bresenham algorithm).   
+ * x1: x coordinate of the line start. Valid values: 0..240  
+ * y1: y coordinate of the line start. Valid values: 0..320 
+ * x2: x coordinate of the line end. Valid values: 0..240
+ * y2: y coordinate of the line end. Valid values: 0..320
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. End x and y coord' as
+ * unsigned integers. color of outline as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Line(Uint x1, Uint y1, Uint x2, Uint y2, Uint color){
 Sint i;
 Sint longest, shortest; 
@@ -531,14 +649,19 @@ for (i = 0; i <= longest; i++)
     }
 }
 
-//==============================================================================
-// This function draws a rectangle on TFT.
-// x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
-// y1: y coordinate of the upper left rectangle corner. Valid values: 0..320 
-// x2: x coordinate of the lower right rectangle corner. Valid values: 0..240 
-// y2: y coordinate of the lower right rectangle corner. Valid values: 0..320 
-// color: color parameter.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a rectangle on TFT.  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * x2: x coordinate of the lower right rectangle corner. Valid values: 0..240
+ * y2: y coordinate of the lower right rectangle corner. Valid values: 0..320
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. End x and y coord' as
+ * unsigned integers. color of outline as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Rectangle(Uint x1, Uint y1, Uint x2, Uint y2, Uint color){
 TFT_Line(x1, y1, x2, y1, color);
 TFT_Line(x1, y2, x2, y2, color);
@@ -546,10 +669,21 @@ TFT_Line(x1, y1, x1, y2, color);
 TFT_Line(x2, y1, x2, y2, color);
 }
 
-//==============================================================================
-// This function draws a rounded edge rectangle on TFT.
-// radius: radius of the rounded edge.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a rounded edge rectangle on TFT.  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * x2: x coordinate of the lower right rectangle corner. Valid values: 0..240
+ * y2: y coordinate of the lower right rectangle corner. Valid values: 0..320
+ * radius: radius of corner.
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. End x and y coord' as
+ * unsigned integers. Radius of corners as unsigned integer. Color of outline 
+ * as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_RectangleRound(Uint x1, Uint y1, Uint x2, Uint y2, Uint radius, Uint color){
 TFT_Line(x1 + radius, y1, x2 - radius, y1, color);
 TFT_Line(x1 + radius, y2, x2 - radius, y2, color);
@@ -561,9 +695,21 @@ TFT_RoundEdge(x1 + radius, y2 - radius, 2, radius, color);
 TFT_RoundEdge(x2 - radius, y2 - radius, 1, radius, color); 
 }
 
-//==============================================================================
-// This function draws a filled rounded edge rectangle on TFT.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a filled rounded edge rectangle on TFT.  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * x2: x coordinate of the lower right rectangle corner. Valid values: 0..240
+ * y2: y coordinate of the lower right rectangle corner. Valid values: 0..320
+ * radius: radius of corner.
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. End x and y coord' as
+ * unsigned integers. Radius of corners as unsigned integer. Color of 
+ * outline/fill as unsigned integer.
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_RectangleRoundFill(Uint x1, Uint y1, Uint x2, Uint y2, Uint radius, Uint color){ 
 TFT_Box(x1 + radius, y1, x2 - radius, y2, color);
 TFT_Box(x1, y1 + radius, x2, y2 - radius, color);
@@ -573,13 +719,20 @@ TFT_CircleFill(x1 + radius, y2 - radius, radius, color);
 TFT_CircleFill(x2 - radius, y2 - radius, radius, color);
 }
 
-//==============================================================================
-// This function draws a circle on TFT (Midpoint circle algorithm).
-// x1: x coordinate of the circle center. Valid values: 0..240
-// y1: y coordinate of the circle center. Valid values: 0..320
-// radius: radius size
-// color: color parameter.
-//==============================================================================
+
+/******************************************************************************
+ * Description: This function draws a circle on TFT (Midpoint circle algorithm).  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * radius: radius size
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. Radius of corners as 
+ * unsigned integer. Color of outline/fill as unsigned integer.
+ * 
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Circle(Uint x1, Uint y1, Uint radius, Uint color){  
 Sint x = radius, y = 0;
 Sint radiusError = 1 - x;
@@ -605,9 +758,19 @@ while(x >= y)
      }
 }
 
-//==============================================================================
-// This function draws a filled circle on TFT.
-//==============================================================================
+/******************************************************************************
+ * Description: This function draws a filled circle on TFT (Midpoint algorithm).  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * radius: radius size
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. Radius of corners as 
+ * unsigned integer. Color of outline/fill as unsigned integer.
+ * 
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_CircleFill(Uint x1, Uint y1, Uint radius, Uint color){
 Uchar i = dot_size;    
 Sint x = radius, y = 0;
@@ -640,9 +803,21 @@ while(x >= y)
 dot_size = i;
 }
 
-//==============================================================================
-// This function is used to draw a round edge.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function is used to draw a round edge.  
+ * x1: x coordinate of the upper left rectangle corner. Valid values: 0..240  
+ * y1: y coordinate of the upper left rectangle corner. Valid values: 0..320
+ * alignment: how to center corner.
+ * radius: radius of corner.
+ * color: color parameter. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. Alignment of corner as 
+ * unsigned integer. Radius of corners as unsigned integer. Color of 
+ * outline/fill as unsigned integer.
+ * 
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_RoundEdge(Uint x1, Uint y1, Uint alignment, Uint radius, Uint color){
 Sint x = radius, y = 0;
 Sint radiusError = 1 - x;
@@ -679,13 +854,19 @@ while(x >= y)
      }
 }
 
-//==============================================================================
-// This function draws a image on a desired location.
-// x: x position. 
-// y: y position. 
-// width: width of the image in pixels.
-// height: height of the image in pixels.
-//==============================================================================
+/******************************************************************************
+ * Description:  This function draws a image on a desired location.  
+ * x: x position.  
+ * y: y position.
+ * width: width of the image in pixels.
+ * height: height of the image in pixels. 
+ * 
+ * Inputs: Start x and y coord' as unsigned integers. Width of image as unsigned
+ * integer. Height of image as unsigned integer.
+ * 
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void TFT_Icon(CUint *buffer, Uint x, Uint y, Uchar width_, Uchar height_){
 Uint i, j;    
 TFT_ColumnPage(x, x + (width_ - 1), y, y + (height_ - 1));
@@ -701,3 +882,4 @@ for(i = 0; i < height_; i++)
    }
 TFT_CS = 1;
 }
+/* END OF FILE */

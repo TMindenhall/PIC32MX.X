@@ -1,6 +1,40 @@
+//*******************************************************************//
+// File: MT3339.c                                                    //
+// Author: Thomas Mindenhall, Austin Fagen                           //
+// Project: Backpack Buddy                                           //
+//                                                                   //
+//                                                                   //
+// Description: Initializes GPS Structs and handles gps data.        //
+//                                                                   //
+//*******************************************************************//
 
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include "MT3339.h"
 
+////////////////////////////////////////////////////////////////////////////////
+//*******************************STRCTS***************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Makes a struct for GPGGA sentences.
+ *
+ ******************************************************************************/
+GPS_gpgga newGPGGA;
+
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/******************************************************************************
+ * Description: Initializes UART 1 as inputs to GPS. Sets Enable, Clears Flags
+ * and States.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void GPS_Init(void) {
     NMEA_Enable = 1;
     NMEA_State = 0;
@@ -9,7 +43,13 @@ void GPS_Init(void) {
     UART_1_Init(9600);
     nmea_index = 0;
 }
-
+/******************************************************************************
+ * Description: Stores Character in Buffer and processes the string.
+ * 
+ * Inputs: None, handled in Interrupts --> USART1 --> RX Int.
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void GPS_String_Handler(void) {
     
     if (rx_nmea == '\r' || rx_nmea == '\n') {
@@ -33,7 +73,15 @@ void GPS_String_Handler(void) {
 
 
 }
-
+/******************************************************************************
+ * Description: Parses a NMEA String and stores the values in their respective
+ * variables. Handles GPGGA and GPRMC Strings. 
+ * 
+ * Inputs: Pointer to Source Buffer.
+ * 
+ * Returns: If successful -->  1 (TRUE)
+ *          If !successful --> -1 (FALSE) 
+ ******************************************************************************/
 char GPS_Parse_NMEA(char *nmea_ptr) {
     
   // first look if we even have one
@@ -53,10 +101,8 @@ char GPS_Parse_NMEA(char *nmea_ptr) {
   int32_t degree;
   long minutes;
   char degreebuff[10];
-  /////////////////////////////////////////////////////////////////////////////
-  //*******************************GPGGA************************************///
-  /////////////////////////////////////////////////////////////////////////////
   
+  //*******************************GPGGA************************************///
   // look for a few common sentences
   if (strstr(nmea_ptr, "$GPGGA")) {
       
@@ -161,9 +207,8 @@ char GPS_Parse_NMEA(char *nmea_ptr) {
     return 1;
   }
   
-  //////////////////////////////////////////////////////////////////////////////
   //*****************************GPRMC****************************************//
-  //////////////////////////////////////////////////////////////////////////////
+  
   if (strstr(nmea_ptr, "$GPRMC")) {
    // found RMC
     char *p = nmea_ptr;                             
@@ -272,6 +317,14 @@ char GPS_Parse_NMEA(char *nmea_ptr) {
   return -1;
 
 }
+/******************************************************************************
+ * Description: Parses a Hex value from a string.
+ * 
+ * Inputs: Character to be parsed.
+ * 
+ * Returns: if parse is successful --> value of character
+ *          if parse is unsuccessful --> NULL
+ ******************************************************************************/
 uint8_t GPS_parseHex(char c) {
     if (c < '0')
       return 0;
@@ -284,6 +337,99 @@ uint8_t GPS_parseHex(char c) {
     // if (c > 'F')
     return 0;
 }
+/******************************************************************************/
+/******************************************************************************
+ * Description: Parses GGA Strings and stores them in their respective struct.
+ * 
+ * Inputs: Pointer to Source Buffer.
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
+void parse_GGA(char *NMEA_ptr){
+    Start_Delta_T();
+    int counter = 0;
+    int i = 0;
+    while (*NMEA_ptr != '*') {
+        i = 0;
+        while (*NMEA_ptr != ',') {
+            NMEA_Buffer_1[i++] = *NMEA_ptr;
+            NMEA_ptr++;
+        }
+        NMEA_ptr++;
+        NMEA_Buffer_1[i] = '\0';
+//        Send_String_U1(NMEA_Buffer_2);
+        switch(counter){
+            case 1: 
+                i = 0;
+                while(NMEA_Buffer_1[i] != '\0'){
+                newGPGGA.time[i]       = NMEA_Buffer_1[i];
+                
+                i++;
+                }
+                break;
+            case 2:
+                newGPGGA.latitude   = atof(NMEA_Buffer_1);
+                
+                break;
+            case 3:
+                newGPGGA.latDir     = *NMEA_Buffer_1;
+                
+                break;
+            case 4:
+                newGPGGA.longitude  = atof(NMEA_Buffer_1);
+                
+                break;
+            case 5:
+                newGPGGA.longDir    = *NMEA_Buffer_1;
+                
+                break;
+            case 6: 
+                newGPGGA.fix        = atoi(NMEA_Buffer_1);
+                
+                break;
+            case 7:
+                newGPGGA.sats       = atoi(NMEA_Buffer_1);
+                
+                break;
+            case 8:
+                newGPGGA.dilution   = atof(NMEA_Buffer_1);
+                break;
+            case 9:
+                newGPGGA.altitude   = atof(NMEA_Buffer_1);
+                break;
+            case 10:
+                newGPGGA.unitAlt    = *NMEA_Buffer_1;
+                break;
+            case 11: 
+                newGPGGA.geoidal    = atof(NMEA_Buffer_1);
+                break;
+            case 12:
+                newGPGGA.unitGeo    = *NMEA_Buffer_1;
+                break;
+            case 13:
+                newGPGGA.dataAge    = atof(NMEA_Buffer_1);
+                break;
+            case 14:
+                newGPGGA.diffID     = atoi(NMEA_Buffer_1);
+                break;
+            default:
+                break;
+                
+        }
+        counter++;
+        memset(NMEA_Buffer_1, '\0', sizeof(NMEA_Buffer_1));
+    }
+    
+}
+
+/******************************************************************************
+ * Description: Transfers the full buffer (NMEA_XFER_BUFF) to another Buffer 
+ * (NMEA_BUFFER_1) for processing.
+ * 
+ * Inputs: Pointer to Source Buffer, Pointer to Destination Buffer.
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void Xfer_String(char *from_ptr, char *to_ptr) {
 
     char length = sizeof (NMEA_Xfer_Buff);
@@ -296,7 +442,14 @@ void Xfer_String(char *from_ptr, char *to_ptr) {
     }
 }
 
-//Returns distance in km as double
+/******************************************************************************
+ * Description: Computes the Haversine Function to establish a distance from 
+ * two GPS coord'
+ * 
+ * Inputs: Current coord' and Prev coord' as Double(s).
+ * 
+ * Returns: Distance in Km as Double
+ ******************************************************************************/
 double GPS_Haversine(double current_lat, double last_lat, double current_long, double last_long){
     double dLat = (current_lat - last_lat) * (PI/180.0);
     double dLng = (current_long - last_long) * (PI/180.0);

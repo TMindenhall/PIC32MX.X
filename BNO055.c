@@ -1,8 +1,19 @@
-//Includes
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include "BNO055.h"
 
+////////////////////////////////////////////////////////////////////////////////
+//*******************************FUNCTIONS************************************//
+////////////////////////////////////////////////////////////////////////////////
 
-/******************************************************************************/
+/******************************************************************************
+ * Description: Zeros all values stored from IMU.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void Null_IMU_Values(void) {
     //Null Variables
     acc_x = acc_y = acc_z = 0;
@@ -18,7 +29,15 @@ void Null_IMU_Values(void) {
 
 
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Initializes BNO IMU as Temp source from GYRO and puts it in 
+ * Fusion Mode.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID).
+ ******************************************************************************/
 void BNO_Init(void) {
     Uint reg;
     sprintf(buffer_1, "Configuring IMU...");
@@ -48,7 +67,14 @@ void BNO_Init(void) {
 
 
 }
-/******************************************************************************/
+
+/******************************************************************************
+ * Description: Calibrates the IMU for use. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Cal_Routine(void) {
     unsigned char sys_cal, acc_cal, mag_cal, gyr_cal;
     sprintf(buffer_1, "Calibrating...");
@@ -73,7 +99,14 @@ void BNO_Cal_Routine(void) {
     sprintf(buffer_1, "IMU Cal'd...");
     TFT_Text(buffer_1, 20, 200, BLACK, WHITE);
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Manually updates the accelerometer variables. Does not use for
+ * repeated read so it is slow for numerous reads. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Man_Update_ACC(void){
     
     acc_x = I2C_1_Read_Byte(BNO_DEVICE, ACC_X_MSB);
@@ -89,7 +122,14 @@ void BNO_Man_Update_ACC(void){
     acc_z = I2C_1_Read_Byte(BNO_DEVICE, ACC_Z_LSB);
 
 }
-/*****************************************************************************/
+/******************************************************************************
+ * Description: Manually updates the gyro variables. Does not use 
+ * repeated read so it is slow for numerous reads. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Man_Update_GYR(void){
     
     gyr_x = I2C_1_Read_Byte(BNO_DEVICE, GYR_X_MSB);
@@ -105,7 +145,14 @@ void BNO_Man_Update_GYR(void){
     gyr_z = I2C_1_Read_Byte(BNO_DEVICE, GYR_Z_LSB);
 
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Manually updates the magnetometer variables. Does not use 
+ * repeated read so it is slow for numerous reads. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Man_Update_MAG(void){
     
     mag_x = I2C_1_Read_Byte(BNO_DEVICE, MAG_X_MSB);
@@ -121,7 +168,14 @@ void BNO_Man_Update_MAG(void){
     mag_z = I2C_1_Read_Byte(BNO_DEVICE, MAG_Z_LSB);
 
 }
-
+/******************************************************************************
+ * Description: Manually updates the linear accelerometer variables. Does not  
+ * use repeated read so it is slow for numerous reads. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Man_Update_LIN(void){
     //Null_Timer_1();
     //Timer_1_Start();
@@ -137,7 +191,14 @@ void BNO_Man_Update_LIN(void){
     lin_acc_z >= 8;
     lin_acc_z = I2C_1_Read_Byte(BNO_DEVICE, LIA_Z_LSB);
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Manually updates all variables. Does not use repeated read so  
+ * it is slow for numerous reads. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Full_Man_Update(void){
 
     BNO_Man_Update_ACC();
@@ -145,7 +206,13 @@ void BNO_Full_Man_Update(void){
     BNO_Man_Update_MAG();
     
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Automatically updates all variables. Uses Repeated Read funct. 
+ * 
+ * Inputs: Start address from BNO Register. How many bytes to be expected.
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void BNO_Auto_Update (char start_adr,int num_bytes){
     
     int i;
@@ -172,7 +239,14 @@ void BNO_Auto_Update (char start_adr,int num_bytes){
     mag_z = Buffer[8];
 
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Updates the TFT Display with the provided information. Used for
+ * Debug Mode.  
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void Update_Text_Display(void){
     
     TFT_FillScreen(BLACK);
@@ -191,7 +265,14 @@ void Update_Text_Display(void){
     sprintf(buffer_1, "%d %d %d", mag_x, mag_y, mag_z);
     TFT_Text(buffer_1, 20, 140, WHITE, BLACK);
 }
-/******************************************************************************/
+/******************************************************************************
+ * Description: Updates heading from IMU. Uses Repeated Read. Computes unit
+ * vectors for heading.  
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void Update_New_Heading(void){
     Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE,MAG_X_LSB,6);
@@ -211,7 +292,14 @@ void Update_New_Heading(void){
     mag_unit_y = ((mag_y) / (magnitude + 1)); 
     mag_unit_z = ((mag_z) / (magnitude + 1)); 
 }
-
+/******************************************************************************
+ * Description: Updates Linear Acceleration using Repeated Read. Modifies for 
+ * error and noise.  
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void Read_LIN(void){
     Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE,LIA_X_LSB,6);
@@ -220,12 +308,22 @@ void Read_LIN(void){
     lin_acc_z = (int16_t)((Xfer_Int(5)<<8)|(Xfer_Int(4)))/10;
     delta_t = Compute_Delta_T();
 }
+
+/******************************************************************************
+ * Description: Finds the projection of Linear Acceleration on to the 
+ * Heading unit vectors.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 /******************************************************************************/
 /*
  We need to take the Linear Acc and project that to a vector that is normal to 
  * the gravity vector. We also want only the Linear Acc in the direction of the
  * heading. 
  */
+
 void Correct_Vectors (void){
     //Correct Lin Acc for Heading
     correction_vector_x = ((mag_x * lin_acc_x)/magnitude)*mag_unit_x;
@@ -236,21 +334,53 @@ void Correct_Vectors (void){
     
     
 }
+
+/******************************************************************************
+ * Description: Starts a delta_t timer. Uses Delay.c.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
 void Start_Delta_T(void){
     Null_Timer_1();
     Timer_1_Start();
 }
+
+/******************************************************************************
+ * Description: Stops a delta_t timer, then reads the value from the register. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: Timer 1 Register Value.
+ ******************************************************************************/
 int16_t Read_Delta_T(void){
     Timer_1_Stop();
     return Timer_1_Read();
 }
+
+/******************************************************************************
+ * Description: Computes a Timer 1 Register value to a real number for time. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: time as a double
+ ******************************************************************************/
 double Compute_Delta_T(void){
     int16_t time = Read_Delta_T();
     ///double factor = (8/20000000L);
     //return (factor * time);
     return time;
 }
-/******************************************************************************/    
+
+/******************************************************************************
+ * Description: Computes the integral for posistion using delta_t and linear
+ * acceleration. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: a distance in meters as 32bit signed. 
+ ******************************************************************************/
 int32_t Compute_Position(void){
     Correct_Vectors();
     delta_t = Compute_Delta_T();
@@ -259,6 +389,13 @@ int32_t Compute_Position(void){
     return total_distance_r2;
 }
 
+/******************************************************************************
+ * Description: getter for delta_t. 
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: delta_t as unsigned 16 bit value. 
+ ******************************************************************************/
 uint16_t Get_Delta_T(void){
     return delta_t;
 }

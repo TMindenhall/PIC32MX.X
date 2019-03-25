@@ -12,6 +12,7 @@
       <itemPath>Delay.h</itemPath>
       <itemPath>BNO055.h</itemPath>
       <itemPath>MT3339.h</itemPath>
+      <itemPath>MAX17043.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -30,6 +31,7 @@
       <itemPath>Delay.c</itemPath>
       <itemPath>BNO055.c</itemPath>
       <itemPath>MT3339.c</itemPath>
+      <itemPath>MAX17043.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

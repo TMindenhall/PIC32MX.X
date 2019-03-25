@@ -1,5 +1,16 @@
+//*******************************************************************//
+// File: MT3339.h                                                    //
+// Author: Thomas Mindenhall, Austin Fagen                           //
+// Project: Backpack Buddy                                           //
+//                                                                   //
+//                                                                   //
+// Description: Initializes GPS Structs and handles gps data.        //
+//                                                                   //
+//*******************************************************************//
 
-
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
 #include <xc.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,8 +18,10 @@
 #include "CONFIG.h"
 #include "EUSART.h"
 
-/**************************************************************************/
-/**
+////////////////////////////////////////////////////////////////////////////////
+//*******************************Defines**************************************//
+////////////////////////////////////////////////////////////////////////////////
+/*
  Different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz)
  Note that these only control the rate at which the position is echoed, to actually speed up the
  position fix you must also send one of the position fix rate commands below too. */
@@ -51,6 +64,70 @@
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D"          ///< don't show antenna status messages
 
 #define PI 3.141592
+
+////////////////////////////////////////////////////////////////////////////////
+//**************************Structures****************************************//
+////////////////////////////////////////////////////////////////////////////////
+
+/**************************GPS Structures**************************************/
+typedef struct GPS_gprmcTag
+{
+    char    nav;            //navigation warning
+    float   latitude;       //current latitude
+    char    latDir;         //north/south
+    float   longitude;      //current longitude
+    char    longDir;        //east/west
+    float   speed;          //speed knots
+    int     course;         //True course    
+    float   magVar;         //magnetic variation
+//    char    date[];         //date of fix
+    char    time[];         //time UTC
+}GPS_gprmc;
+
+typedef struct GPS_gpgllTag
+{
+    float   latitude;       //current latitude
+    char    latDir;         //north/south
+    float   longitude;      //current longitude
+    char    longDir;        //east/west
+}GPS_gpgll;
+
+typedef struct GPS_gprmaTag
+{
+    char    status;         //status of data
+    float   latitude;       //current latitude
+    char    latDir;         //north or south latitude
+    float   longitude;      //current longitude
+    char    longDir;        //east or west longitude
+    float   speed;          //speed over ground knots
+    int     course;         //course over ground
+    float   variation;      //variation 
+    char    varDir;         //direction of variation east/west
+}GPS_gprma;
+
+typedef struct GPS_gpggaTag
+{
+    
+    float   latitude;       //Latitude of position
+    char    latDir;         //N/S
+    float   longitude;      //longitude of position
+    char    longDir;        //E/W
+    int     fix;            //GPS Quality 0-no fix, 1-GPS, 2-DGPS
+    int     sats;           //number of satellites
+    float   dilution;       //horizontal dilution(relative accuracy of horizontal position)
+    float   altitude;       //Antenna altitude above mean-sea-level
+    char    unitAlt;        //units of altitude, meters
+    float   geoidal;        //Geoidal separation
+    char    unitGeo;        //units of Geoidal, meters
+    float   dataAge;        //Age of DGPS data(seconds)
+    int     diffID;         //Differential reference station ID
+    char    time[];         //UTC of position
+}GPS_gpgga;
+
+
+////////////////////////////////////////////////////////////////////////////////
+//*********************************GLOBALS************************************//
+////////////////////////////////////////////////////////////////////////////////
 
 char NMEA_State;
 char NMEA_Enable;
@@ -95,6 +172,9 @@ char debug_buff[10];
 char NMEA_Buffer_1 [79]; ///< Parsing Buffer
 char NMEA_Xfer_Buff[79]; ///< Carrier Buffer from Interrupt
 
+////////////////////////////////////////////////////////////////////////////////
+//*****************************Prototypes*************************************//
+////////////////////////////////////////////////////////////////////////////////
 
 void GPS_Init(void);
 void GPS_String_Handler(void);

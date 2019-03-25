@@ -9,6 +9,17 @@
 //*******************************************************************//
 #ifndef __ILI9341_H
 #define __ILI9341_H
+
+///////////////////////////////////////////////////////////////////////////////
+//*****************************Includes**************************************//
+///////////////////////////////////////////////////////////////////////////////
+#include <xc.h>
+#include "SPI.h"
+#include "DELAY.h"
+
+////////////////////////////////////////////////////////////////////////////////
+//*******************************Defines**************************************//
+////////////////////////////////////////////////////////////////////////////////
 //==============================================================================
 // Connection of module TFT.
 //
@@ -87,9 +98,9 @@ typedef int Sint;
 typedef unsigned int Uint;
 typedef const unsigned int CUint;
 
-//==============================================================================
-// Function Prototypes.
-//==============================================================================
+////////////////////////////////////////////////////////////////////////////////
+//*****************************Prototypes*************************************//
+////////////////////////////////////////////////////////////////////////////////
 void TFT_Init(void);
 void TFT_Reset(void);
 void TFT_WriteCommand(Uchar command);
@@ -97,7 +108,7 @@ void TFT_WriteParameter(Uchar parameter);
 void TFT_ColumnPage(Uint x1, Uint x2, Uint y1, Uint y2);
 Uchar TFT_MemoryAccessControl(Uchar frame_memory_);
 Uint TFT_RGBConvert(Uint red, Uint green, Uint blue);
-//==============================================================================
+
 void TFT_Pixel(Uint x, Uint y, Uint color);
 void TFT_SetDotSize(Uchar size_);
 void TFT_Dot(Uint x, Uint y, Uint color);
@@ -122,3 +133,4 @@ void TFT_RoundEdge(Uint x1, Uint y1, Uint alignment, Uint radius, Uint color);
 void TFT_Icon(CUint *buffer, Uint x, Uint y, Uchar width_, Uchar height_);
 
 #endif
+/* END OF FILE */
