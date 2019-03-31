@@ -273,6 +273,9 @@ void Update_Text_Display(void){
  * 
  * Returns: NULL (VOID)
  ******************************************************************************/
+
+//If using the tilt compensated algo works upadate that funtion with finding the
+//unit vector instead.
 void Update_New_Heading(void){
     Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE,MAG_X_LSB,6);
@@ -307,6 +310,7 @@ void Read_LIN(void){
     lin_acc_y = (int16_t)((Xfer_Int(3)<<8)|(Xfer_Int(2)))/10;
     lin_acc_z = (int16_t)((Xfer_Int(5)<<8)|(Xfer_Int(4)))/10;
     delta_t = Compute_Delta_T();
+    delta_t = delta_t/3;
 }
 
 /******************************************************************************
@@ -398,6 +402,59 @@ int32_t Compute_Position(void){
  ******************************************************************************/
 uint16_t Get_Delta_T(void){
     return delta_t;
+}
+
+/******************************************************************************
+ * Description: get a new tilt compensated heading from acc and mag. Uses
+ *              repeated read function for time savings. Updates unit vector
+ *              for heading using mag_xyz.
+ * 
+ * Inputs: NULL (VOID).
+ * 
+ * Returns: DOUBLE value of Heading. 
+ ******************************************************************************/
+/*
+ * NEEDS TO COMPENSATE FOR MAG VARIATION - USE GPS TO UPDATE VALUE
+ * NEEDS TESTING!
+ */
+double Get_Tilt_Heading (void){
+    double heading_x, heading_y;
+    
+    double var_compass;
+    heading_x = heading_y = 0;
+    
+    I2C_1_Repeated_Read(BNO_DEVICE,ACC_X_LSB,12);
+    acc_x = (Xfer_Int(1)<<8)|(Xfer_Int(0));
+    acc_y = (Xfer_Int(3)<<8)|(Xfer_Int(2));
+    acc_z = (Xfer_Int(5)<<8)|(Xfer_Int(4));
+    mag_x = (Xfer_Int(7)<<8)|(Xfer_Int(6));
+    mag_y = (Xfer_Int(9)<<8)|(Xfer_Int(8));
+    mag_z = (Xfer_Int(11)<<8)|(Xfer_Int(10));
+    
+    heading_x =   mag_x*cos(acc_y) 
+                + mag_y*sin(acc_y)*sin(acc_x) 
+                - mag_z*cos(acc_x)*sin(acc_y);
+    
+    heading_y = mag_y*cos(acc_x) + mag_z*sin(acc_x); 
+    
+    var_compass = atan2(heading_y,heading_x) * (180 / PI) - 90;
+    if (var_compass > 0){
+        var_compass = var_compass - 360;
+    }
+    var_compass = 360 + var_compass;
+    
+    uint32_t smag_x, smag_y, smag_z;
+    smag_x = abs(mag_x * mag_x);
+    smag_y = abs(mag_y * mag_y);
+    smag_z = abs(mag_z * mag_z);
+    uint32_t snorm = smag_x + smag_y + smag_z;
+    magnitude = sqrt(snorm);
+    
+    mag_unit_x = ((mag_x) / (magnitude + 1));  
+    mag_unit_y = ((mag_y) / (magnitude + 1)); 
+    mag_unit_z = ((mag_z) / (magnitude + 1));
+    
+    return var_compass;
 }
 /*****************************************************************************/
 /*****************************END OF FILE*************************************/

@@ -14,7 +14,8 @@
 #include <proc/p32mx170f256b.h>
 #include "I2C.h"
  
-//Refer to I2C.h for Address Defines
+//Refer to BNO055.h and MAX17043.h for Address Defines or...
+//Refer to schematic for Address of Devices
 
 ////////////////////////////////////////////////////////////////////////////////
 //*******************************FUNCTIONS************************************//

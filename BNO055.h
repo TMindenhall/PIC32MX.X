@@ -102,7 +102,7 @@
 #define ACC_X_OFF_MSB       0x56
 #define ACC_X_OFF_LSB       0x55
 
-
+#define PI 3.141592
 ////////////////////////////////////////////////////////////////////////////////
 //*********************************GLOBALS************************************//
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +155,6 @@ int16_t Read_Delta_T(void);
 double Compute_Delta_T(void);
 int32_t Compute_Position(void);
 uint16_t Get_Delta_T(void);
-
+double Get_Tilt_Heading (void);
 #endif
 /* END OF FILE*/
