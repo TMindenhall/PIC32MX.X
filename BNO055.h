@@ -113,6 +113,7 @@ int16_t gravity_x, gravity_y, gravity_z;
 int16_t lin_acc_x, lin_acc_y, lin_acc_z;
 int32_t correction_vector_x, correction_vector_y, correction_vector_z;
 int32_t distance_x,distance_y,distance_z;
+int16_t eul_heading,eul_roll,eul_pitch;
 /******************************************************************************/
 //For Filtering
 int16_t last_acc_x, last_acc_y, last_acc_z;
@@ -156,5 +157,6 @@ double Compute_Delta_T(void);
 int32_t Compute_Position(void);
 uint16_t Get_Delta_T(void);
 double Get_Tilt_Heading (void);
+void Get_Orientation(void);
 #endif
 /* END OF FILE*/

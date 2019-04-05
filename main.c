@@ -52,6 +52,7 @@ int main(void) {
     InitSystem();
     SPI1_Init();
     GPS_Init();
+//    UART_1_Init(9600);
     Send_String_U1(str_buffer_msg);
     I2C_1_Init();
     TFT_Init();
@@ -59,17 +60,26 @@ int main(void) {
     TFT_SetFont(Courier_New_Bold_20,1);
     
     //Begin Processing
-    Boot_Message();
     BNO_Init();
-    //BNO_Cal_Routine();
-    TFT_FillScreen(BLACK);
-    sprintf(buffer_1, "Distance:");
-    TFT_Text(buffer_1, 0, 0, WHITE, BLACK);
+    BNO_Cal_Routine();
+    //TFT_FillScreen(BLACK);
     Timer_1_Init();
     int32_t c = 0;
+    double test_heading;
     while (1) {
     /**************************************************************************/ 
-        
+        test_heading = Get_Tilt_Heading();
+        sprintf(buffer_1, "Tilt Heading: %f\r\n", test_heading);
+        Send_String_U1(buffer_1);
+       Get_Orientation();
+       sprintf(buffer_1, "H: %d\r\n",eul_heading);
+       Send_String_U1(buffer_1);
+       //sprintf(buffer_1, "R: %d\r\n",eul_roll);
+       //Send_String_U1(buffer_1);
+       //sprintf(buffer_1, "P: %d\r\n",eul_pitch);
+       //Send_String_U1(buffer_1);
+       Delay_ms(500);
+       //BNO_Cal_Routine();
         if(NMEA_Flag){
             sprintf(buffer_1,"%c : %d\r",NMEA_Xfer_Buff[nmea_index],nmea_index);
             Send_String_U1(buffer_1);
