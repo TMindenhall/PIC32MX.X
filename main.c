@@ -36,10 +36,10 @@ void Done_Message(void);
 ////////////////////////////////////////////////////////////////////////////////
 //*********************************GLOBALS************************************//
 ////////////////////////////////////////////////////////////////////////////////
-char c;
-char str_buffer_msg[] = "UART 1 Configured\r\n";
+uint8_t c;
+uint8_t str_buffer_msg[] = "UART 1 Configured\r\n";
 //NMEA Strings
-int i;
+uint16_t i;
 uint32_t distance;
 uint16_t delta_t;
 
@@ -71,15 +71,15 @@ int main(void) {
         test_heading = Get_Tilt_Heading();
         sprintf(buffer_1, "Tilt Heading: %f\r\n", test_heading);
         Send_String_U1(buffer_1);
-       Get_Orientation();
-       sprintf(buffer_1, "H: %d\r\n",eul_heading);
-       Send_String_U1(buffer_1);
-       //sprintf(buffer_1, "R: %d\r\n",eul_roll);
-       //Send_String_U1(buffer_1);
-       //sprintf(buffer_1, "P: %d\r\n",eul_pitch);
-       //Send_String_U1(buffer_1);
-       Delay_ms(500);
-       //BNO_Cal_Routine();
+        Get_Orientation();
+        sprintf(buffer_1, "H: %d\r\n",eul_heading);
+        Send_String_U1(buffer_1);
+        //sprintf(buffer_1, "R: %d\r\n",eul_roll);
+        //Send_String_U1(buffer_1);
+        //sprintf(buffer_1, "P: %d\r\n",eul_pitch);
+        //Send_String_U1(buffer_1);
+        Delay_ms(500);
+        //BNO_Cal_Routine();
         if(NMEA_Flag){
             sprintf(buffer_1,"%c : %d\r",NMEA_Xfer_Buff[nmea_index],nmea_index);
             Send_String_U1(buffer_1);

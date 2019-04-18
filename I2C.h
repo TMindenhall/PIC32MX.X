@@ -20,21 +20,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 //*********************************GLOBALS************************************//
 ////////////////////////////////////////////////////////////////////////////////
-int flag;
-int Recieve_Buffer[30]; //For Repeated Read
+int16_t flag;
+int8_t Recieve_Buffer[64]; //For Repeated Read
 
 ////////////////////////////////////////////////////////////////////////////////
 //*****************************Prototypes*************************************//
 ////////////////////////////////////////////////////////////////////////////////
 void I2C_1_Init(void); 
 void I2C_2_Init(void);
-char I2C_1_Read_Byte(char device_adr, char reg_adr);
-char I2C_2_Read_Byte(char device_adr, char reg_adr);
-void I2C_1_Write_Byte(char device_adr, char reg_adr, char value);
-void I2C_2_Write_Byte(char device_adr, char reg_adr, char value);
-void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes);
-int Xfer_Int (char adr);
-int Read_Flag(void);
+uint8_t I2C_1_Read_Byte(uint8_t device_adr, uint8_t reg_adr);
+uint8_t I2C_2_Read_Byte(uint8_t device_adr, uint8_t reg_adr);
+void I2C_1_Write_Byte(uint8_t device_adr, uint8_t reg_adr, uint8_t value);
+void I2C_2_Write_Byte(uint8_t device_adr, uint8_t reg_adr, uint8_t value);
+void I2C_1_Repeated_Read(uint8_t device_adr, uint8_t device_reg, uint8_t num_bytes);
+void I2C_1_Repeated_Write(uint8_t device_adr, uint8_t reg_adr, uint8_t * value, uint8_t numBytes);
+int8_t Xfer_Int (uint8_t adr);
+uint16_t Read_Flag(void);
 
 #endif
 

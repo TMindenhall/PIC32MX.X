@@ -128,7 +128,7 @@ int16_t last_distance_x,last_distance_y,last_distance_z;
 int32_t projection;
 uint32_t magnitude;
 int32_t total_distance_r3,total_distance_r2;
-int i;
+uint16_t i;
 uint16_t delta_t;
 /******************************************************************************/
 //Buffers

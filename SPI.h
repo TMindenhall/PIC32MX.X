@@ -30,7 +30,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 void SPI1_Init(void);
 void SPI1_Close(void);
-void SPI1_Write(unsigned char data);
+void SPI1_Write(uint8_t data);
 unsigned char SPI1_Read(void);
 
 #endif

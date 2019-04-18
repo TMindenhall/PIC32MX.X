@@ -26,7 +26,7 @@
 // VCC      <<<>>> 3.3 V.
 // GND      <<<>>> GND.
 // TFT_CS   <<<>>> RB15
-// TFT_REST <<<>>> RA12
+// TFT_REST <<<>>> RB12
 // TFT_D/C  <<<>>> RB10
 // TFT_SDI  <<<>>> RB11
 // TFT_SCK  <<<>>> RB14

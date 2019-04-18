@@ -91,8 +91,8 @@ void Null_Timer_1 (void){
  * 
  * Returns: NULL (VOID).
  ******************************************************************************/
-void Delay_ms(int ms){
-    int i;
+void Delay_ms(uint16_t ms){
+    uint16_t i;
     for(i = 0; i <= ms;i++){
         IFS0bits.T1IF = 0;
         Timer_1_Reset();

@@ -13,6 +13,8 @@
       <itemPath>BNO055.h</itemPath>
       <itemPath>MT3339.h</itemPath>
       <itemPath>MAX17043.h</itemPath>
+      <itemPath>BQ27441.h</itemPath>
+      <itemPath>I2C_new.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -32,6 +34,8 @@
       <itemPath>BNO055.c</itemPath>
       <itemPath>MT3339.c</itemPath>
       <itemPath>MAX17043.c</itemPath>
+      <itemPath>BQ27441.c</itemPath>
+      <itemPath>I2C_new.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

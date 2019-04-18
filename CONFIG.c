@@ -131,11 +131,11 @@ void InitPins(void) {
     U1RXR = 2;  //RA4 (RX1)
     RPB4R = 1;  //RB4 (TX1)
     U2RXR = 0;  //RA1 (RX2)
-    RPA3R = 2;  //RB3 (TX2)
+    RPA3R = 2;  //RA3 (TX2)
     RPB0R = 1; // RB0 (U1RTS)
     U1CTSR = 2; //RB1 (U1CTS)
-    U2CTSR = 1; //RB6 (U1CTS)
-    RPB3R = 2;  //RB3 (U1RTS)
+    U2CTSR = 1; //RB6 (U2CTS)
+    RPB3R = 2;  //RB3 (U2RTS)
     
     CFGCONbits.IOLOCK = 1;
     SYSKEY = 0x33333333; 

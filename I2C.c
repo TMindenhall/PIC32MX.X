@@ -73,7 +73,7 @@ void I2C_2_Init(void){
  * 
  * Returns: Value as a Byte.
  ******************************************************************************/
-char I2C_1_Read_Byte(char device_adr, char reg_adr){
+uint8_t I2C_1_Read_Byte(uint8_t device_adr, uint8_t reg_adr){
     
     char rx;
     
@@ -111,9 +111,9 @@ char I2C_1_Read_Byte(char device_adr, char reg_adr){
  * 
  * Returns: Value as a Byte.
  ******************************************************************************/
-char I2C_2_Read_Byte(char device_adr, char reg_adr){
+uint8_t I2C_2_Read_Byte(uint8_t device_adr, uint8_t reg_adr){
     
-    char rx;
+    uint8_t rx;
     
     I2C2CONbits.SEN = 1;                //Start condition
     while (I2C2CONbits.SEN == 1);       //Wait for start to finish
@@ -142,8 +142,8 @@ char I2C_2_Read_Byte(char device_adr, char reg_adr){
  * 
  * Returns: NULL (VOID).
  ******************************************************************************/
-void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
-    char data;
+void I2C_1_Write_Byte(uint8_t device_adr, uint8_t reg_adr, uint8_t value){
+    uint8_t data;
     
     I2C1CONbits.SEN = 1;                //Start condition
     while (I2C1CONbits.SEN == 1);       //Wait for start to finish
@@ -177,8 +177,8 @@ void I2C_1_Write_Byte(char device_adr, char reg_adr, char value){
  * 
  * Returns: NULL (VOID).
  ******************************************************************************/
-void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
-    char data;
+void I2C_2_Write_Byte(uint8_t device_adr, uint8_t reg_adr, uint8_t value){
+    uint8_t data;
     
     I2C2CONbits.SEN = 1;                //Start condition
     while (I2C2CONbits.SEN == 1);       //Wait for start to finish
@@ -204,10 +204,10 @@ void I2C_2_Write_Byte(char device_adr, char reg_adr, char value){
  * 
  * Returns: NULL (VOID).
  ******************************************************************************/
-void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
+void I2C_1_Repeated_Read(uint8_t device_adr, uint8_t device_reg, uint8_t num_bytes) {
 
-    char rx;
-    char state;
+    uint8_t rx;
+    uint8_t state;
     I2C1CONbits.SEN = 1; //Start condition
     while (I2C1CONbits.SEN == 1); //Wait for start to finish
     rx = I2C1TRN;
@@ -248,6 +248,29 @@ void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
     
 }
 
+void I2C_1_Repeated_Write(uint8_t device_adr, uint8_t reg_adr, uint8_t * value, uint8_t numBytes){
+    uint8_t dummy,i;
+    
+    I2C2CONbits.SEN = 1;                //Start condition
+    while (I2C2CONbits.SEN == 1);       //Wait for start to finish
+    dummy = I2C2RCV;                       //Make sure buffer is clear
+    I2C2TRN = device_adr;               //address with R/W set for read
+    while (I2C2STATbits.TRSTAT);           // wait until write cycle is complete
+    while (I2C1STATbits.ACKSTAT);
+    I2C2TRN = reg_adr;
+    while (I2C2STATbits.TRSTAT);
+    while (I2C1STATbits.ACKSTAT);
+    for(i = 0;i<numBytes;i++){
+    I2C2TRN = *value;           //address with R/W set for read
+    while (I2C2STATbits.TRSTAT);
+    while (I2C1STATbits.ACKSTAT);
+    value ++;
+    }
+    I2C2CONbits.PEN = 1;                //Stop condition
+    while (I2C2CONbits.PEN == 1);       //Wait for stop to finish
+}
+
+
 /******************************************************************************
  * Description: Transfers a single byte out of a buffer (Recieve_Buffer) at a
  * specified address.
@@ -256,7 +279,7 @@ void I2C_1_Repeated_Read(char device_adr, char device_reg, char num_bytes) {
  * 
  * Returns: Value inside of register as a byte (signed).
  ******************************************************************************/
-int Xfer_Int (char adr){
+int8_t Xfer_Int (uint8_t adr){
     
     return Recieve_Buffer[adr];
 }
@@ -268,7 +291,7 @@ int Xfer_Int (char adr){
  * 
  * Returns: Value of the flag as a integer.
  ******************************************************************************/
-int Read_Flag (void){
+uint16_t Read_Flag (void){
 
     return flag;
 }

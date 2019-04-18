@@ -22,6 +22,7 @@
  *
  ******************************************************************************/
 GPS_gpgga newGPGGA;
+GPS_gprmc newGPRMC;
 
 ////////////////////////////////////////////////////////////////////////////////
 //*******************************FUNCTIONS************************************//
@@ -411,6 +412,84 @@ void parse_GGA(char *NMEA_ptr){
                 break;
             case 14:
                 newGPGGA.diffID     = atoi(NMEA_Buffer_1);
+                break;
+            default:
+                break;
+                
+        }
+        counter++;
+        memset(NMEA_Buffer_1, '\0', sizeof(NMEA_Buffer_1));
+    }
+    
+}
+
+/******************************************************************************
+ * Description: Parses RMC Strings and stores them in their respective struct.
+ * 
+ * Inputs: Pointer to Source Buffer.
+ * 
+ * Returns: NULL (VOID)
+ ******************************************************************************/
+void parse_RMC(char *NMEA_ptr){
+    Start_Delta_T();
+    int counter = 0;
+    int i = 0;
+    while (*NMEA_ptr != '*') {
+        i = 0;
+        while (*NMEA_ptr != ',') {
+            NMEA_Buffer_1[i++] = *NMEA_ptr;
+            NMEA_ptr++;
+        }
+        NMEA_ptr++;
+        NMEA_Buffer_1[i] = '\0';
+//        Send_String_U1(NMEA_Buffer_2);
+        switch(counter){
+            case 1: 
+                i = 0;
+                while(NMEA_Buffer_1[i] != '\0'){
+                newGPRMC.time[i]       = NMEA_Buffer_1[i];
+                
+                i++;
+                }
+                break;
+            case 2:
+                newGPRMC.nav           = *NMEA_Buffer_1;
+                
+                break;
+            case 3:
+                newGPRMC.latitude      = atof(NMEA_Buffer_1);
+                
+                break;
+            case 4:
+                newGPRMC.latDir        = *NMEA_Buffer_1;
+                
+                break;
+            case 5:
+                newGPRMC.longitude     = atof(NMEA_Buffer_1);
+                
+                break;
+            case 6: 
+                newGPRMC.longDir       = *NMEA_Buffer_1;
+                
+                break;
+            case 7:
+                newGPRMC.speed         = atof(NMEA_Buffer_1);
+                
+                break;
+            case 8:
+                newGPRMC.course        = atof(NMEA_Buffer_1);
+                break;
+            case 9:
+                newGPRMC.date          = atof(NMEA_Buffer_1);
+                
+                break;
+            case 10:
+                newGPRMC.magVar        = atof(NMEA_Buffer_1);
+                
+                break;
+            case 11: 
+                newGPRMC.magDir        = *NMEA_Buffer_1;
+                
                 break;
             default:
                 break;

@@ -32,7 +32,7 @@
  * Returns: NULL (VOID).
  ******************************************************************************/
 void __ISR(_UART_1_VECTOR, ipl7AUTO) UART_1_RX_ISR(void) {
-    char rx;
+    uint8_t rx;
     //Echo Code for Debugging
     if (IFS1bits.U1RXIF) {
         rx = U1RXREG;
@@ -62,7 +62,7 @@ void __ISR(_UART_1_VECTOR, ipl7AUTO) UART_1_RX_ISR(void) {
  * Returns: NULL (VOID).
  ******************************************************************************/
 void __ISR(_UART_2_VECTOR, ipl7SOFT) UART_2_RX_ISR(void) {
-    char rx;
+    uint8_t rx;
     //Add RX handler
     if (IFS1bits.U2RXIF) {
         rx = U2RXREG;

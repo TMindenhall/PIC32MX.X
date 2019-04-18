@@ -231,8 +231,8 @@ void BNO_Full_Man_Update(void) {
  ******************************************************************************/
 void BNO_Auto_Update(char start_adr, int num_bytes) {
 
-    int i;
-    char byte_num = 0;
+    uint16_t i;
+    uint8_t byte_num = 0;
     Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE, start_adr, num_bytes);
     delta_t = Compute_Delta_T();
@@ -427,7 +427,9 @@ uint16_t Get_Delta_T(void) {
 /******************************************************************************
  * Description: get a new tilt compensated heading from acc and mag. Uses
  *              repeated read function for time savings. Updates unit vector
- *              for heading using mag_xyz.
+ *              for heading using mag xyz. The algo used incorperates the euler
+ *              pitch and roll axis to deal with the tilt compensation. The algo
+ *              then selects a case base on the planer x and y components. 
  * 
  * Inputs: NULL (VOID).
  * 
@@ -453,19 +455,34 @@ double Get_Tilt_Heading(void) {
     mag_z = (Xfer_Int(11) << 8) | (Xfer_Int(10));
     
     eul_pitch = (Xfer_Int(23) << 8) | (Xfer_Int(22));
-            eul_roll = (Xfer_Int(21) << 8) | (Xfer_Int(20));
-            eul_pitch /= 900;
-            eul_roll /= 900;
+    eul_roll = (Xfer_Int(21) << 8) | (Xfer_Int(20));
+    eul_pitch /= 900;
+    eul_roll /= 900;
+    
     heading_x = mag_x*cos(eul_roll)
     + mag_y*sin(eul_roll)*sin(eul_pitch) 
     - mag_z*cos(eul_pitch)*sin(eul_roll);
 
     heading_y = mag_y *cos(eul_pitch) + mag_z*sin(eul_pitch); 
 
-    var_compass = atan2(heading_y, heading_x) * (180 / PI) - 90;
+    //var_compass = atan2(heading_y, heading_x) * (180 / PI);//get back to degrees
 
+    if(heading_x < 0){
+        var_compass = 180 - atan2(heading_y,heading_x);
+    }
+    if(heading_x > 0 && heading_y < 0){
+        var_compass = -atan2(heading_y,heading_x);
+    }
+    if(heading_x > 0 && heading_y > 0){
+        var_compass = 360 - atan2(heading_y,heading_x);
+    }
+    if(heading_x = 0 && heading_y < 0){
+        var_compass = 90;
+    }
+    if(heading_x = 0 && heading_y > 0){
+        var_compass = 270;
+    }
     
-
     uint32_t smag_x, smag_y, smag_z;
     smag_x = abs(mag_x * mag_x);
     smag_y = abs(mag_y * mag_y);

@@ -78,32 +78,12 @@ typedef struct GPS_gprmcTag
     float   longitude;      //current longitude
     char    longDir;        //east/west
     float   speed;          //speed knots
-    int     course;         //True course    
+    float   course;         //True course    
     float   magVar;         //magnetic variation
-//    char    date[];         //date of fix
+    char    magDir;         //magnetic variation direction
+    float   date;           //date of fix
     char    time[];         //time UTC
 }GPS_gprmc;
-
-typedef struct GPS_gpgllTag
-{
-    float   latitude;       //current latitude
-    char    latDir;         //north/south
-    float   longitude;      //current longitude
-    char    longDir;        //east/west
-}GPS_gpgll;
-
-typedef struct GPS_gprmaTag
-{
-    char    status;         //status of data
-    float   latitude;       //current latitude
-    char    latDir;         //north or south latitude
-    float   longitude;      //current longitude
-    char    longDir;        //east or west longitude
-    float   speed;          //speed over ground knots
-    int     course;         //course over ground
-    float   variation;      //variation 
-    char    varDir;         //direction of variation east/west
-}GPS_gprma;
 
 typedef struct GPS_gpggaTag
 {
