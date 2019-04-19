@@ -37,7 +37,8 @@
 #define UNIT_SEL            0x3B
 #define AXIS_MAP_SIGN       0x42
 #define CALIB_STATUS        0x35
-
+#define SYS_CLK_STATUS      0x38
+#define SYS_STATUS          0x39
 #define TEMP                0x34
 #define GRV_Z_MSB           0x33
 #define GRV_Z_LSB           0x32

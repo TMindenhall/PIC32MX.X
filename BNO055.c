@@ -31,8 +31,8 @@ void Null_IMU_Values(void) {
 }
 
 /******************************************************************************
- * Description: Initializes BNO IMU as Temp source from GYRO and puts it in 
- * Fusion Mode.
+ * Description: Initializes BNO IMU. *Will contain config notes in final product
+ * for now it is used to verify settings*
  * 
  * Inputs: NULL (VOID).
  * 
@@ -43,33 +43,35 @@ void BNO_Init(void) {
     sprintf(buffer_1, "Configuring IMU...");
     //TFT_Text(buffer_1, 20, 40, BLACK, WHITE);
     Send_String_U1(buffer_1);
-    I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x00);
+    I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x00); //go into config
     Delay_ms(20);
-    reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
+    reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE); //confirm config mode
     sprintf(buffer_1, "OP:%x\r\n", reg);
-    //TFT_Text(buffer_1, 20, 60, BLACK, WHITE);
     Send_String_U1(buffer_1);
-    I2C_1_Write_Byte(BNO_DEVICE, TEMP_SOURCE, 0x01);
+    I2C_1_Write_Byte(BNO_DEVICE, TEMP_SOURCE, 0x01); //set temp source to gyro
     Delay_ms(10);
-    reg = I2C_1_Read_Byte(BNO_DEVICE, TEMP_SOURCE);
+    reg = I2C_1_Read_Byte(BNO_DEVICE, TEMP_SOURCE); //confirm temp source is gyro
     sprintf(buffer_1, "TSRC:%x\r\n", reg);
-    //TFT_Text(buffer_1, 20, 80, BLACK, WHITE);
     Send_String_U1(buffer_1);
-    I2C_1_Write_Byte(BNO_DEVICE, UNIT_SEL, 0x04);
+    I2C_1_Write_Byte(BNO_DEVICE, UNIT_SEL, 0x14); //set units to degrees
     Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, UNIT_SEL);
-    sprintf(buffer_1, "Units are degrees and C : %x\r\n");
+    sprintf(buffer_1, "Units are degrees and C : %x\r\n"); //confirm
     Send_String_U1(buffer_1);
-    I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x0C);
-    //TFT_Text(buffer_1, 80, 100, BLACK, WHITE);
+    I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x0C); //put into fusion mode
     Delay_ms(10);
-    reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE);
+    reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE); //confirm fusion mode
     sprintf(buffer_1, "OP:%x\r\n", reg);
-    //TFT_Text(buffer_1, 20, 100, BLACK, WHITE);
+    Send_String_U1(buffer_1);
+    reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_CLK_STATUS);//confirm clk
+    sprintf(buffer_1, "SYS Clock: %x\r", reg);
+    Send_String_U1(buffer_1);
+    reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_STATUS); //confirm fusion mode
+    sprintf(buffer_1,"System Status: %d\r",reg);
     Send_String_U1(buffer_1);
     sprintf(buffer_1, "IMU Configured...");
-    //TFT_Text(buffer_1, 20, 120, BLACK, WHITE);
     Send_String_U1(buffer_1);
+    
 
 }
 
@@ -308,7 +310,7 @@ void Update_New_Heading(void) {
     //Get a new magnitude to compute a unit vector
     uint32_t snorm = smag_x + smag_y + smag_z;
     magnitude = sqrt(snorm);
-    //Compute Unit Vector --Problems start here
+    //Compute Unit Vector
     mag_unit_x = ((mag_x) / (magnitude + 1));
     mag_unit_y = ((mag_y) / (magnitude + 1));
     mag_unit_z = ((mag_z) / (magnitude + 1));
@@ -392,9 +394,9 @@ int16_t Read_Delta_T(void) {
  ******************************************************************************/
 double Compute_Delta_T(void) {
     int16_t time = Read_Delta_T();
-    ///double factor = (8/20000000L);
-    //return (factor * time);
-    return time;
+    double factor = 0.0000004; //400ns per tick
+    return (double)(factor * (double)time);
+    
 }
 
 /******************************************************************************
@@ -445,7 +447,8 @@ double Get_Tilt_Heading(void) {
 
     double var_compass;
     heading_x = heading_y = 0;
-
+    
+    //Populate our variables
     I2C_1_Repeated_Read(BNO_DEVICE, ACC_X_LSB, 24);
     acc_x = (Xfer_Int(1) << 8) | (Xfer_Int(0));
     acc_y = (Xfer_Int(3) << 8) | (Xfer_Int(2));
@@ -456,17 +459,19 @@ double Get_Tilt_Heading(void) {
     
     eul_pitch = (Xfer_Int(23) << 8) | (Xfer_Int(22));
     eul_roll = (Xfer_Int(21) << 8) | (Xfer_Int(20));
+    
+    //correct the e-angles to pure radians
     eul_pitch /= 900;
     eul_roll /= 900;
     
+    //create a plane normal to the gravity vector
     heading_x = mag_x*cos(eul_roll)
     + mag_y*sin(eul_roll)*sin(eul_pitch) 
     - mag_z*cos(eul_pitch)*sin(eul_roll);
 
     heading_y = mag_y *cos(eul_pitch) + mag_z*sin(eul_pitch); 
-
-    //var_compass = atan2(heading_y, heading_x) * (180 / PI);//get back to degrees
-
+    
+    //correct our data 
     if(heading_x < 0){
         var_compass = 180 - atan2(heading_y,heading_x);
     }
@@ -483,6 +488,7 @@ double Get_Tilt_Heading(void) {
         var_compass = 270;
     }
     
+    //compute a unit vector of our heading
     uint32_t smag_x, smag_y, smag_z;
     smag_x = abs(mag_x * mag_x);
     smag_y = abs(mag_y * mag_y);
@@ -493,7 +499,8 @@ double Get_Tilt_Heading(void) {
     mag_unit_x = ((mag_x) / (magnitude + 1));
     mag_unit_y = ((mag_y) / (magnitude + 1));
     mag_unit_z = ((mag_z) / (magnitude + 1));
-
+    
+    //return our heading 
     return var_compass;
 }
 
