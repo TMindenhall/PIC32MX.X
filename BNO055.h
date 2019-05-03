@@ -103,43 +103,46 @@
 #define ACC_X_OFF_MSB       0x56
 #define ACC_X_OFF_LSB       0x55
 
-#define PI 3.141592
+#define PI 3.14159265
+#define DEG_2_RAD M_PI / 180
+#define RAD_2_DEG 180 / M_PI
 ////////////////////////////////////////////////////////////////////////////////
 //*********************************GLOBALS************************************//
 ////////////////////////////////////////////////////////////////////////////////
-int16_t acc_x, acc_y, acc_z;
-int16_t gyr_x, gyr_y, gyr_z;
-int16_t mag_x, mag_y, mag_z;
-int16_t gravity_x, gravity_y, gravity_z;
-int16_t lin_acc_x, lin_acc_y, lin_acc_z;
-int32_t correction_vector_x, correction_vector_y, correction_vector_z;
-int32_t distance_x,distance_y,distance_z;
-int16_t eul_heading,eul_roll,eul_pitch;
-/******************************************************************************/
-//For Filtering
-int16_t last_acc_x, last_acc_y, last_acc_z;
-int16_t last_gyr_x, last_gyr_y, last_gyr_z;
-int16_t last_mag_x, last_mag_y, last_mag_z;
-int16_t last_gravity_x, last_gravity_y, last_gravity_z;
-int16_t last_linear_acc_x, last_linear_acc_y, last_linear_acc_z;
-int16_t mag_unit_x, mag_unit_y, mag_unit_z;
-int16_t last_distance_x,last_distance_y,last_distance_z;
-
-/******************************************************************************/
-int32_t projection;
-uint32_t magnitude;
-int32_t total_distance_r3,total_distance_r2;
+/**********************************IMU VECTOR**********************************/
+double acc_x, acc_y, acc_z;
+double gyr_x, gyr_y, gyr_z;
+double mag_x, mag_y, mag_z;
+double mag_unit_x, mag_unit_y, mag_unit_z;
+double gravity_x, gravity_y, gravity_z;
+double lin_acc_x, lin_acc_y, lin_acc_z;
+double correction_vector_x, correction_vector_y, correction_vector_z;
+double eul_heading,eul_roll,eul_pitch;
+double sum_lin_x, sum_lin_y, sum_lin_z;
+/*****************************TIME DEPENDANT VAR*******************************/
+double distance;
+int32_t acc_count;
+double last_distance_x,last_distance_y,last_distance_z; //may need these
+double projection;
+double magnitude;
+double heading;
+double total_distance_r2;
 uint16_t i;
-uint16_t delta_t;
+double delta_t = .00003; // fixed 30uS (time to read a register)
 /******************************************************************************/
 //Buffers
 int32_t Buffer[1];
 int8_t buffer_1[60];
 int16_t heading_Buffer[7];
-
+/*************************STATIC CALIBRATION VALUES****************************/
+static uint16_t acc_offset_x, acc_offset_y, acc_offset_z;
+static uint16_t gyr_offset_x, gyr_offset_y, gyr_offset_z;
+static uint16_t mag_offset_x, mag_offset_y, mag_offset_z;
+static uint16_t acc_radius, mag_radius;
 ////////////////////////////////////////////////////////////////////////////////
 //*****************************Prototypes*************************************//
 ////////////////////////////////////////////////////////////////////////////////
+
 void BNO_Init(void);
 void BNO_Cal_Routine(void);
 void BNO_Man_Update_ACC(void);
@@ -147,9 +150,6 @@ void BNO_Man_Update_GYR(void);
 void BNO_Man_Update_MAG(void);
 void BNO_Man_Update_LIN(void);
 void BNO_Full_Man_Update(void);
-void BNO_Auto_Update (char start_adr,int num_bytes);
-void Update_Text_Display(void);
-void Update_New_Heading(void);
 void Read_LIN(void);
 void Correct_Vectors (void);
 void Start_Delta_T(void);
@@ -157,7 +157,7 @@ int16_t Read_Delta_T(void);
 double Compute_Delta_T(void);
 int32_t Compute_Position(void);
 uint16_t Get_Delta_T(void);
-double Get_Tilt_Heading (void);
 void Get_Orientation(void);
+
 #endif
 /* END OF FILE*/

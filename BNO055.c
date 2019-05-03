@@ -21,13 +21,6 @@ void Null_IMU_Values(void) {
     mag_x = mag_y = mag_z = 0;
     gravity_x = gravity_y = gravity_z = 0;
     lin_acc_x = lin_acc_y = lin_acc_z = 0;
-    last_acc_x = last_acc_y = last_acc_z = 0;
-    last_gyr_x = last_gyr_y = last_gyr_z = 0;
-    last_mag_x = last_mag_y = last_mag_z = 0;
-    last_gravity_x = last_gravity_y = last_gravity_z = 0;
-    last_linear_acc_x = last_linear_acc_y = last_linear_acc_z = 0;
-
-
 }
 
 /******************************************************************************
@@ -63,20 +56,20 @@ void BNO_Init(void) {
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE); //confirm fusion mode
     sprintf(buffer_1, "OP:%x\r\n", reg);
     Send_String_U1(buffer_1);
-    reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_CLK_STATUS);//confirm clk
+    reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_CLK_STATUS); //confirm clk
     sprintf(buffer_1, "SYS Clock: %x\r", reg);
     Send_String_U1(buffer_1);
     reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_STATUS); //confirm fusion mode
-    sprintf(buffer_1,"System Status: %d\r",reg);
+    sprintf(buffer_1, "System Status: %d\r", reg);
     Send_String_U1(buffer_1);
     sprintf(buffer_1, "IMU Configured...");
     Send_String_U1(buffer_1);
-    
+
 
 }
 
 /******************************************************************************
- * Description: Calibrates the IMU for use. 
+ * Description: Calibrates the IMU for use. Stores offset values for later use. 
  * 
  * Inputs: NULL (VOID).
  * 
@@ -89,9 +82,9 @@ void BNO_Cal_Routine(void) {
     //sprintf(buffer_1, "S : G : A : M");
     //TFT_Text(buffer_1, 20, 160, BLACK, WHITE);
 
-    if(gyr_cal != 0xFF) {
+    if (gyr_cal != 0xFF) {
         uint16_t temp;
-        
+
         temp = I2C_1_Read_Byte(BNO_DEVICE, CALIB_STATUS);
         sys_cal = acc_cal = mag_cal = gyr_cal = temp;
         sys_cal &= 0xC0;
@@ -104,11 +97,46 @@ void BNO_Cal_Routine(void) {
         sprintf(buffer_1, "S:%d,G:%d,A:%d,M:%d", sys_cal, gyr_cal, acc_cal, mag_cal);
         //TFT_Text(buffer_1, 20, 180, BLACK, WHITE);
         Send_String_U1(buffer_1);
-    }
-    else{
-    sprintf(buffer_1, "IMU Cal'd...");
-    //TFT_Text(buffer_1, 20, 200, BLACK, WHITE);
-    Send_String_U1(buffer_1);
+    } else {
+        //Get offset values
+        I2C_1_Repeated_Read(BNO_DEVICE, 0x55, 22);
+        acc_offset_x = (int16_t) ((Xfer_Int(1) << 8) | (Xfer_Int(0)));
+        acc_offset_y = (int16_t) ((Xfer_Int(3) << 8) | (Xfer_Int(2)));
+        acc_offset_z = (int16_t) ((Xfer_Int(5) << 8) | (Xfer_Int(4)));
+        gyr_offset_x = (int16_t) ((Xfer_Int(13) << 8) | (Xfer_Int(12)));
+        gyr_offset_y = (int16_t) ((Xfer_Int(15) << 8) | (Xfer_Int(14)));
+        gyr_offset_z = (int16_t) ((Xfer_Int(17) << 8) | (Xfer_Int(16)));
+        mag_offset_x = (int16_t) ((Xfer_Int(7) << 8) | (Xfer_Int(6)));
+        mag_offset_y = (int16_t) ((Xfer_Int(9) << 8) | (Xfer_Int(8)));
+        mag_offset_z = (int16_t) ((Xfer_Int(11) << 8) | (Xfer_Int(10)));
+        acc_radius =   (int16_t) ((Xfer_Int(19) << 8) | (Xfer_Int(18)));
+        mag_radius =   (int16_t) ((Xfer_Int(21) << 8) | (Xfer_Int(20)));
+        
+        //Send the offset values so we can load them for later
+        sprintf(buffer_1, "0x%x\r\n",acc_offset_x);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",acc_offset_y);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",acc_offset_z);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",gyr_offset_x);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",gyr_offset_y);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",gyr_offset_z);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",mag_offset_x);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",mag_offset_y);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",mag_offset_z);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",acc_radius);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "0x%x\r\n",mag_radius);
+        Send_String_U1(buffer_1);
+        sprintf(buffer_1, "IMU Cal'd...");
+        Send_String_U1(buffer_1);
     }
 }
 
@@ -225,98 +253,6 @@ void BNO_Full_Man_Update(void) {
 }
 
 /******************************************************************************
- * Description: Automatically updates all variables. Uses Repeated Read funct. 
- * 
- * Inputs: Start address from BNO Register. How many bytes to be expected.
- * 
- * Returns: NULL (VOID)
- ******************************************************************************/
-void BNO_Auto_Update(char start_adr, int num_bytes) {
-
-    uint16_t i;
-    uint8_t byte_num = 0;
-    Start_Delta_T();
-    I2C_1_Repeated_Read(BNO_DEVICE, start_adr, num_bytes);
-    delta_t = Compute_Delta_T();
-    delta_t = delta_t / num_bytes;
-    for (i = 0; i < num_bytes; i++) {
-        Buffer[i] = Xfer_Int(byte_num);
-        byte_num++;
-        Buffer[i] <= 8;
-    }
-
-    //This may need to be changed
-    acc_x = Buffer[0];
-    acc_y = Buffer[1];
-    acc_z = Buffer[2];
-    gyr_x = Buffer[3];
-    gyr_y = Buffer[4];
-    gyr_z = Buffer[5];
-    mag_x = Buffer[6];
-    mag_y = Buffer[7];
-    mag_z = Buffer[8];
-
-}
-
-/******************************************************************************
- * Description: Updates the TFT Display with the provided information. Used for
- * Debug Mode.  
- * 
- * Inputs: NULL (VOID).
- * 
- * Returns: NULL (VOID)
- ******************************************************************************/
-void Update_Text_Display(void) {
-
-    TFT_FillScreen(BLACK);
-    sprintf(buffer_1, "ACC X Y Z");
-    TFT_Text(buffer_1, 20, 20, WHITE, BLACK);
-    sprintf(buffer_1, "%d %d %d", acc_x, acc_y, acc_z);
-    TFT_Text(buffer_1, 20, 40, WHITE, BLACK);
-
-    sprintf(buffer_1, "GYR X Y Z");
-    TFT_Text(buffer_1, 20, 80, WHITE, BLACK);
-    sprintf(buffer_1, "%d %d %d", gyr_x, gyr_y, gyr_z);
-    TFT_Text(buffer_1, 20, 100, WHITE, BLACK);
-
-    sprintf(buffer_1, "MAG X Y Z");
-    TFT_Text(buffer_1, 20, 120, WHITE, BLACK);
-    sprintf(buffer_1, "%d %d %d", mag_x, mag_y, mag_z);
-    TFT_Text(buffer_1, 20, 140, WHITE, BLACK);
-}
-/******************************************************************************
- * Description: Updates heading from IMU. Uses Repeated Read. Computes unit
- * vectors for heading.  
- * 
- * Inputs: NULL (VOID).
- * 
- * Returns: NULL (VOID)
- ******************************************************************************/
-
-//If using the tilt compensated algo works upadate that funtion with finding the
-//unit vector instead.
-
-void Update_New_Heading(void) {
-    Start_Delta_T();
-    I2C_1_Repeated_Read(BNO_DEVICE, MAG_X_LSB, 6);
-    mag_x = (Xfer_Int(1) << 8) | (Xfer_Int(0));
-    mag_y = (Xfer_Int(3) << 8) | (Xfer_Int(2));
-    mag_z = (Xfer_Int(5) << 8) | (Xfer_Int(4));
-    delta_t = Compute_Delta_T();
-    uint32_t smag_x, smag_y, smag_z;
-    smag_x = abs(mag_x * mag_x);
-    smag_y = abs(mag_y * mag_y);
-    smag_z = abs(mag_z * mag_z);
-    //Get a new magnitude to compute a unit vector
-    uint32_t snorm = smag_x + smag_y + smag_z;
-    magnitude = sqrt(snorm);
-    //Compute Unit Vector
-    mag_unit_x = ((mag_x) / (magnitude + 1));
-    mag_unit_y = ((mag_y) / (magnitude + 1));
-    mag_unit_z = ((mag_z) / (magnitude + 1));
-}
-
-/******************************************************************************
  * Description: Updates Linear Acceleration using Repeated Read. Modifies for 
  * error and noise.  
  * 
@@ -325,40 +261,58 @@ void Update_New_Heading(void) {
  * Returns: NULL (VOID)
  ******************************************************************************/
 void Read_LIN(void) {
-    Start_Delta_T();
     I2C_1_Repeated_Read(BNO_DEVICE, LIA_X_LSB, 6);
-    lin_acc_x = (int16_t) ((Xfer_Int(1) << 8) | (Xfer_Int(0))) / 10;
-    lin_acc_y = (int16_t) ((Xfer_Int(3) << 8) | (Xfer_Int(2))) / 10;
-    lin_acc_z = (int16_t) ((Xfer_Int(5) << 8) | (Xfer_Int(4))) / 10;
-    delta_t = Compute_Delta_T();
-    delta_t = delta_t / 3;
+    lin_acc_x = (int16_t) ((Xfer_Int(1) << 8) | (Xfer_Int(0)));
+    lin_acc_y = (int16_t) ((Xfer_Int(3) << 8) | (Xfer_Int(2)));
+    lin_acc_z = (int16_t) ((Xfer_Int(5) << 8) | (Xfer_Int(4)));
+
+    lin_acc_x /= 100;
+    lin_acc_y /= 100;
+    lin_acc_z /= 100;
+
+    sum_lin_x += lin_acc_x;
+    sum_lin_x += lin_acc_x;
+    sum_lin_x += lin_acc_x;
+
+    acc_count++;
+
 }
 
 /******************************************************************************
- * Description: Finds the projection of Linear Acceleration on to the 
- * Heading unit vectors.
+ * Description: Makes virtual heading components, then takes those and makes
+ *              unit vectors for those components. The function then takes both
+ *              the average acceleration vectors and projects those onto the 
+ *              heading vector. 
  * 
  * Inputs: NULL (VOID).
  * 
  * Returns: NULL (VOID)
  ******************************************************************************/
-/******************************************************************************/
-
-/*
- We need to take the Linear Acc and project that to a vector that is normal to 
- * the gravity vector. We also want only the Linear Acc in the direction of the
- * heading. 
- */
-
 void Correct_Vectors(void) {
-    //Correct Lin Acc for Heading
-    correction_vector_x = ((mag_x * lin_acc_x) / magnitude) * mag_unit_x;
-    correction_vector_y = ((mag_y * lin_acc_y) / magnitude) * mag_unit_y;
-    correction_vector_z = ((mag_z * lin_acc_z) / magnitude) * mag_unit_z;
+    //update values
+    Read_LIN();
+    Get_Orientation();
+    //break up heading into components
+    double heading_x, heading_y, magnitude;
+    heading_x = cos(heading * DEG_2_RAD);
+    heading_y = sin(heading * DEG_2_RAD);
 
+    //take the average acceleration
+    sum_lin_x /= acc_count;
+    sum_lin_y /= acc_count;
+    sum_lin_z /= acc_count;
+    acc_count = 0;
+
+    //make the magnitude for the heading
+    magnitude = sqrt((heading_x * heading_x) + (heading_y * heading_y));
+
+    //project the vectors
+    correction_vector_x = sum_lin_x * (heading_x / magnitude);
+    correction_vector_y = sum_lin_y * (heading_y / magnitude);
+    correction_vector_z = sum_lin_z * (1 / magnitude);
+
+    //assign the projection
     projection = correction_vector_x + correction_vector_y + correction_vector_z;
-
-
 }
 
 /******************************************************************************
@@ -395,12 +349,12 @@ int16_t Read_Delta_T(void) {
 double Compute_Delta_T(void) {
     int16_t time = Read_Delta_T();
     double factor = 0.0000004; //400ns per tick
-    return (double)(factor * (double)time);
-    
+    return (double) (factor * (double) time);
+
 }
 
 /******************************************************************************
- * Description: Computes the integral for posistion using delta_t and linear
+ * Description: Computes the integral for position using delta_t and linear
  * acceleration. 
  * 
  * Inputs: NULL (VOID).
@@ -409,10 +363,8 @@ double Compute_Delta_T(void) {
  ******************************************************************************/
 int32_t Compute_Position(void) {
     Correct_Vectors();
-    delta_t = Compute_Delta_T();
-    total_distance_r2 = (.5 * projection) * ((double) (delta_t * delta_t));
-    //return total_distance_r3;
-    return total_distance_r2;
+    distance = (.5 * projection) * ((double) (delta_t * delta_t));
+    return distance;
 }
 
 /******************************************************************************
@@ -427,83 +379,13 @@ uint16_t Get_Delta_T(void) {
 }
 
 /******************************************************************************
- * Description: get a new tilt compensated heading from acc and mag. Uses
- *              repeated read function for time savings. Updates unit vector
- *              for heading using mag xyz. The algo used incorperates the euler
- *              pitch and roll axis to deal with the tilt compensation. The algo
- *              then selects a case base on the planer x and y components. 
+ * Description: Reads orientation registers, fixes them to degrees, then assigns
+ *              a heading from Euler heading. Uses Repeated Read.  
  * 
  * Inputs: NULL (VOID).
  * 
- * Returns: DOUBLE value of Heading. 
+ * Returns: NULL (VOID).
  ******************************************************************************/
-
-/*
- * NEEDS TO COMPENSATE FOR MAG VARIATION - USE GPS TO UPDATE VALUE
- * NEEDS TESTING!
- */
-double Get_Tilt_Heading(void) {
-    double heading_x, heading_y;
-
-    double var_compass;
-    heading_x = heading_y = 0;
-    
-    //Populate our variables
-    I2C_1_Repeated_Read(BNO_DEVICE, ACC_X_LSB, 24);
-    acc_x = (Xfer_Int(1) << 8) | (Xfer_Int(0));
-    acc_y = (Xfer_Int(3) << 8) | (Xfer_Int(2));
-    acc_z = (Xfer_Int(5) << 8) | (Xfer_Int(4));
-    mag_x = (Xfer_Int(7) << 8) | (Xfer_Int(6));
-    mag_y = (Xfer_Int(9) << 8) | (Xfer_Int(8));
-    mag_z = (Xfer_Int(11) << 8) | (Xfer_Int(10));
-    
-    eul_pitch = (Xfer_Int(23) << 8) | (Xfer_Int(22));
-    eul_roll = (Xfer_Int(21) << 8) | (Xfer_Int(20));
-    
-    //correct the e-angles to pure radians
-    eul_pitch /= 900;
-    eul_roll /= 900;
-    
-    //create a plane normal to the gravity vector
-    heading_x = mag_x*cos(eul_roll)
-    + mag_y*sin(eul_roll)*sin(eul_pitch) 
-    - mag_z*cos(eul_pitch)*sin(eul_roll);
-
-    heading_y = mag_y *cos(eul_pitch) + mag_z*sin(eul_pitch); 
-    
-    //correct our data 
-    if(heading_x < 0){
-        var_compass = 180 - atan2(heading_y,heading_x);
-    }
-    if(heading_x > 0 && heading_y < 0){
-        var_compass = -atan2(heading_y,heading_x);
-    }
-    if(heading_x > 0 && heading_y > 0){
-        var_compass = 360 - atan2(heading_y,heading_x);
-    }
-    if(heading_x = 0 && heading_y < 0){
-        var_compass = 90;
-    }
-    if(heading_x = 0 && heading_y > 0){
-        var_compass = 270;
-    }
-    
-    //compute a unit vector of our heading
-    uint32_t smag_x, smag_y, smag_z;
-    smag_x = abs(mag_x * mag_x);
-    smag_y = abs(mag_y * mag_y);
-    smag_z = abs(mag_z * mag_z);
-    uint32_t snorm = smag_x + smag_y + smag_z;
-    magnitude = sqrt(snorm);
-
-    mag_unit_x = ((mag_x) / (magnitude + 1));
-    mag_unit_y = ((mag_y) / (magnitude + 1));
-    mag_unit_z = ((mag_z) / (magnitude + 1));
-    
-    //return our heading 
-    return var_compass;
-}
-
 void Get_Orientation(void) {
     eul_heading = eul_roll = eul_pitch = 0;
 
@@ -511,11 +393,13 @@ void Get_Orientation(void) {
     eul_heading = (Xfer_Int(1) << 8) | (Xfer_Int(0));
     eul_roll = (Xfer_Int(3) << 8) | (Xfer_Int(2));
     eul_pitch = (Xfer_Int(5) << 8) | (Xfer_Int(4));
-    
+
     eul_heading /= 16;
-    eul_heading -= 8;
-    //eul_roll /= 16;
-    //eul_pitch /= 16;
+    eul_roll /= 16;
+    eul_pitch /= 16;
+    heading = eul_heading;
+
+
 
 }
 /*****************************************************************************/

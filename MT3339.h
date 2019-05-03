@@ -63,7 +63,7 @@
 #define PGCMD_ANTENNA "$PGCMD,33,1*6C"            ///< request for updates on antenna status
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D"          ///< don't show antenna status messages
 
-#define PI 3.141592
+#define PI 3.14159265
 
 ////////////////////////////////////////////////////////////////////////////////
 //**************************Structures****************************************//

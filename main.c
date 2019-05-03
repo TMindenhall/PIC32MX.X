@@ -40,55 +40,46 @@ uint8_t c;
 uint8_t str_buffer_msg[] = "UART 1 Configured\r\n";
 //NMEA Strings
 uint16_t i;
-uint32_t distance;
-uint16_t delta_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 //*******************************MAIN FUNCTION********************************//
 ////////////////////////////////////////////////////////////////////////////////
 int main(void) {
-    //Config Functions
-    //Inits
-    InitSystem();
-    SPI1_Init();
-    GPS_Init();
+    /****************************Do Not Change*********************************/
+    InitSystem();                       // Needed for PIC
+    SPI1_Init();                        // Needed for TFT
+    I2C_1_Init();                       // I2C Bus
+    TFT_Init();                         //Initialize TFT
+    TFT_SetDotSize(1);                  //Configurable Dot Size
+    TFT_SetFont(Courier_New_Bold_20,1); //Configurable Font
+    Delay_ms(10);
+    TFT_FillScreen(BLACK);
+    /**************************************************************************/
+    // Use either GPS_Init or UART_1_Init
+    GPS_Init(); 
 //    UART_1_Init(9600);
-    Send_String_U1(str_buffer_msg);
-    I2C_1_Init();
-    TFT_Init();
-    TFT_SetDotSize(1);
-    TFT_SetFont(Courier_New_Bold_20,1);
+    Send_String_U1(str_buffer_msg); //Confirmation message 
     
-    //Begin Processing
+    
+    
+    
+    //Begin BNO
     BNO_Init();
+    
+    //Use function below if needing manual calibration
     BNO_Cal_Routine();
-    //TFT_FillScreen(BLACK);
+    
+    //Use function below if needing Timer
     Timer_1_Init();
-    int32_t c = 0;
-    double test_heading;
+  
     while (1) {
-    /**************************************************************************/ 
-        test_heading = Get_Tilt_Heading();
-        sprintf(buffer_1, "Tilt Heading: %f\r\n", test_heading);
-        Send_String_U1(buffer_1);
-        Get_Orientation();
-        sprintf(buffer_1, "H: %d\r\n",eul_heading);
-        Send_String_U1(buffer_1);
-        //sprintf(buffer_1, "R: %d\r\n",eul_roll);
-        //Send_String_U1(buffer_1);
-        //sprintf(buffer_1, "P: %d\r\n",eul_pitch);
-        //Send_String_U1(buffer_1);
-        Delay_ms(500);
-        //BNO_Cal_Routine();
-        if(NMEA_Flag){
-            sprintf(buffer_1,"%c : %d\r",NMEA_Xfer_Buff[nmea_index],nmea_index);
-            Send_String_U1(buffer_1);
-            GPS_String_Handler(); //puts characters into Xfer Buffer
-            rx_nmea = 0;
-        }
+    /*****************************Start Loop***********************************/ 
         
-   /***************************************************************************/    
+    /**************************************************************************/
     }
+        
+       
+    
 }
 
 
