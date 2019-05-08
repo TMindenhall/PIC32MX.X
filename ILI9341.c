@@ -882,4 +882,47 @@ for(i = 0; i < height_; i++)
    }
 TFT_CS = 1;
 }
+
+void TFT_Vector(Uint x, Uint y, Uint distance, Uint heading){
+    
+    char TFT_BUFF[50];
+    double head = heading * M_PI/180;
+    double a = distance * cos(head);
+    double b = distance * sin(head);
+    
+    double  xfinal = 0;
+    double  yfinal = 0; 
+    
+    /**************************************************************************/
+    //xfinal += x_last;
+    //yfinal += y_last;
+    /**************************************************************************/
+    TFT_SetDotSize(2);
+    TFT_Dot(x,y, WHITE);
+    TFT_SetDotSize(0);
+   //if above works then just add += to all lines 
+    if(heading > 0 && heading <= 90){
+        xfinal = a+x;
+        yfinal = y-b;
+    }
+    if(heading > 90 && heading <= 180){
+        xfinal = x+a;
+        yfinal = y-b;
+    }
+    if(heading > 180 && heading <= 270){
+        xfinal  = x+a;
+        yfinal  = y-b;
+    }
+    if(heading > 270 && heading <= 360){
+        xfinal  = a+x;
+        yfinal  = y-b;;
+    }
+
+    x_last = xfinal;
+    y_last = yfinal;
+    TFT_Line(x,y,xfinal,yfinal,WHITE);
+    sprintf(TFT_BUFF, "X:%.0f,Y:%.0f", xfinal, yfinal);
+    TFT_Text(TFT_BUFF,0,10,WHITE,BLACK);
+}
+
 /* END OF FILE */

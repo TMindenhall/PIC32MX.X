@@ -14,6 +14,7 @@
 //*****************************Includes**************************************//
 ///////////////////////////////////////////////////////////////////////////////
 #include <xc.h>
+#include <math.h>
 #include "SPI.h"
 #include "DELAY.h"
 
@@ -98,6 +99,8 @@ typedef int Sint;
 typedef unsigned int Uint;
 typedef const unsigned int CUint;
 
+double x_last, y_last;
+
 ////////////////////////////////////////////////////////////////////////////////
 //*****************************Prototypes*************************************//
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +134,7 @@ void TFT_Circle(Uint x1, Uint y1, Uint radius, Uint color);
 void TFT_CircleFill(Uint x1, Uint y1, Uint radius, Uint color);
 void TFT_RoundEdge(Uint x1, Uint y1, Uint alignment, Uint radius, Uint color);
 void TFT_Icon(CUint *buffer, Uint x, Uint y, Uchar width_, Uchar height_);
+void TFT_Vector(Uint x, Uint y, Uint distance, Uint heading);
 
 #endif
 /* END OF FILE */
