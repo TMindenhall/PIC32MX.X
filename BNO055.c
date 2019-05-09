@@ -35,35 +35,35 @@ void BNO_Init(void) {
     Uint reg;
     sprintf(buffer_1, "Configuring IMU...");
     //TFT_Text(buffer_1, 20, 40, BLACK, WHITE);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x00); //go into config
     Delay_ms(20);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE); //confirm config mode
     sprintf(buffer_1, "OP:%x\r\n", reg);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     I2C_1_Write_Byte(BNO_DEVICE, TEMP_SOURCE, 0x01); //set temp source to gyro
     Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, TEMP_SOURCE); //confirm temp source is gyro
     sprintf(buffer_1, "TSRC:%x\r\n", reg);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     I2C_1_Write_Byte(BNO_DEVICE, UNIT_SEL, 0x14); //set units to degrees
     Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, UNIT_SEL);
     sprintf(buffer_1, "Units are degrees and C : %x\r\n"); //confirm
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     I2C_1_Write_Byte(BNO_DEVICE, OPR_MODE, 0x0C); //put into fusion mode
     Delay_ms(10);
     reg = I2C_1_Read_Byte(BNO_DEVICE, OPR_MODE); //confirm fusion mode
     sprintf(buffer_1, "OP:%x\r\n", reg);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_CLK_STATUS); //confirm clk
     sprintf(buffer_1, "SYS Clock: %x\r", reg);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     reg = I2C_1_Read_Byte(BNO_DEVICE, SYS_STATUS); //confirm fusion mode
     sprintf(buffer_1, "System Status: %d\r", reg);
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
     sprintf(buffer_1, "IMU Configured...");
-    Send_String_U1(buffer_1);
+    Send_String_U2(buffer_1);
 
 
 }
@@ -114,29 +114,29 @@ void BNO_Cal_Routine(void) {
         
         //Send the offset values so we can load them for later
         sprintf(buffer_1, "0x%x\r\n",acc_offset_x);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",acc_offset_y);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",acc_offset_z);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",gyr_offset_x);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",gyr_offset_y);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",gyr_offset_z);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",mag_offset_x);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",mag_offset_y);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",mag_offset_z);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",acc_radius);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "0x%x\r\n",mag_radius);
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
         sprintf(buffer_1, "IMU Cal'd...");
-        Send_String_U1(buffer_1);
+        Send_String_U2(buffer_1);
     }
 }
 
