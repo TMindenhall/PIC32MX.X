@@ -361,7 +361,7 @@ double Compute_Delta_T(void) {
  * 
  * Returns: a distance in meters as 32bit signed. 
  ******************************************************************************/
-int32_t Compute_Position(void) {
+double Compute_Position(void) {
     Correct_Vectors();
     distance = (.5 * projection) * ((double) (delta_t * delta_t));
     return distance;

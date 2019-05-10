@@ -155,7 +155,7 @@ void Correct_Vectors (void);
 void Start_Delta_T(void);
 int16_t Read_Delta_T(void);
 double Compute_Delta_T(void);
-int32_t Compute_Position(void);
+double Compute_Position(void);
 uint16_t Get_Delta_T(void);
 void Get_Orientation(void);
 

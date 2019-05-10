@@ -87,11 +87,17 @@ int main(void) {
     Delay_ms(1000);
     while (1) {
     /*****************************Start Loop***********************************/ 
-        Get_Orientation();
+        while(acc_count < 101){
+            Read_LIN(); //Get enough acc to do something
+        }
+        Compute_Position(); //average acc and measure distance
         sprintf(buffer_1,"%.02f",eul_heading);
         Send_String_U2(buffer_1);
         TFT_Text(buffer_1,0,300,WHITE,BLACK);
-        Delay_ms(1000);
+        sprintf(buffer_1,"dis: .02f", distance);
+        Send_String_U2(buffer_1);
+        TFT_Text(buffer_1,0,280,WHITE,BLACK);
+        Delay_ms(100);
     /**************************************************************************/
     } 
 }
